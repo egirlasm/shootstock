@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ReportCtrl">
+      <UniqueIdentifier>{a477b2a6-d9e6-48aa-9ab4-5afa842dbe42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Registry">
+      <UniqueIdentifier>{a11b64f4-f05f-441f-a1a0-0a3ac95c2ec6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CIni">
+      <UniqueIdentifier>{03886674-232f-4666-86dc-8eb03188bc01}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\shootStock.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shootStock.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\2.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\a.ICO">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\BenX.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\dmp.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Icon_2.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Icon_7.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shootStock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shootStockDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="khopenapictrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReportCtrl\ReportCtrl.h">
+      <Filter>ReportCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="BuyList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CurPrice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Registry\Registry.h">
+      <Filter>Registry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CIni_Src\Ini.h">
+      <Filter>CIni</Filter>
+    </ClInclude>
+    <ClInclude Include="TopPrice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JongDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DailyReport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="shootStock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shootStockDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="khopenapictrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReportCtrl\ReportCtrl.cpp">
+      <Filter>ReportCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="BuyList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CurPrice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Registry\Registry.cpp">
+      <Filter>Registry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CIni_Src\Ini.cpp">
+      <Filter>CIni</Filter>
+    </ClCompile>
+    <ClCompile Include="TopPrice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JongDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DailyReport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="shootStock.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
