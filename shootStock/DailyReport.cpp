@@ -106,6 +106,7 @@ void CDailyReport::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName,
 		// 		CReportCtrl * pListCtrl = &pMain->m_buyList.m_ListBox;
 		strRQName = _T("일별주가");
 		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);
+		m_RepotCtrl.SetRedraw(FALSE);
 		for (i = 0; i < nCnt; i++)
 		{
 			arrData.RemoveAll();
@@ -136,6 +137,7 @@ void CDailyReport::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName,
 				
 			}
 		}
+		m_RepotCtrl.SetRedraw();
 	}
 }
 

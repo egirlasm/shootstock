@@ -42,6 +42,6 @@ public:
 	void OnBnClickedButtonAdd(CString t_strCode);
 	afx_msg void OnBnClickedButtonSellall();
 	afx_msg void OnBnClickedButtonTest();
-	afx_msg void OnHdnItemclickList(NMHDR *pNMHDR, LRESULT *pResult);
+	
 	afx_msg void OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult);
 };

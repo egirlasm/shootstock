@@ -19,6 +19,12 @@ const stGRID lstOPTKWFID[] =
 	{L"전일대비기호",	L"10",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
 	{L"등락율",			L"2",	-1,	3,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
 	{L"거래량",			L"5",	-1,	4,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"시가",			L"16",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"고가",			L"17",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"저가",			L"18",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종가",			L"18",	-1,8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매수호가",			L"18",	-1,	9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매도호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	/*{L"매수호가",		L"0",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	{L"전일거래량대비",	L"13",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
 };
@@ -35,6 +41,9 @@ const stGRID lstOPTKWFID_B[] =
 	{L"시가",			L"16",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	{L"고가",			L"17",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	{L"저가",			L"18",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종가",			L"18",	-1,8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매수호가",			L"18",	-1,	9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매도호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	/*{L"전일대비",		L"11",	-1,	-1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
 	{L"전일거래량대비",	L"30",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
 };
@@ -133,7 +142,6 @@ BEGIN_MESSAGE_MAP(CBuyList, CDialogEx)
 	ON_BN_CLICKED(IDC_ORDER3, &CBuyList::OnBnClickedOrder3)
 	ON_BN_CLICKED(IDC_BUTTON_SELLALL, &CBuyList::OnBnClickedButtonSellall)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBuyList::OnBnClickedButtonTest)
-	ON_NOTIFY(HDN_ITEMCLICK, 0, &CBuyList::OnHdnItemclickList)
 	ON_NOTIFY(NM_CLICK, IDC_LIST1, &CBuyList::OnNMClickList)
 END_MESSAGE_MAP()
 
@@ -167,7 +175,9 @@ void CBuyList::InitList(void)
 	m_ListBox.InsertColumn(5,L"시가",0,80);
 	m_ListBox.InsertColumn(6,L"고가",0,80);
 	m_ListBox.InsertColumn(7,L"저가",0,80);
-	m_ListBox.InsertColumn(8,L"전일거래량대비",0,80);
+	m_ListBox.InsertColumn(8,L"종가",0,80);
+	m_ListBox.InsertColumn(9,L"매수호가",0,80);
+	m_ListBox.InsertColumn(10,L"매도호가",0,80);
 }
 
 
@@ -331,6 +341,37 @@ void CBuyList::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPC
 			}
 			arrData.Add(strData);
 		}
+	}
+	if (strRQName == _T("주식기본정보요청"))			// 계좌수익률//if (!lstrcmp(sRealType, L"주식체결"))	// 주식체결
+	{
+
+		//CString strData;
+
+		//strRQName = _T("주식기본정보");
+
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"종목코드");	strData.Trim();
+
+		//CString strTemp;
+		//if (!m_mapJongCode.Lookup(strData, strTemp))
+		//{
+		//	return;
+		//}
+		//int nRow = _wtol(strTemp) -1;
+		////m_ListBox.SetItem(nRow,5,1,strData,0,0,0,0);
+		//
+		////if(strData.GetAt(0) == '+')
+		////	m_ListBox.SetItemTextColor(dwitem,j,RGB(255,0,0));
+		////else if(strData.GetAt(0) == '-')
+		////	m_ListBox.SetItemTextColor(dwitem,j,RGB(0,0,255));
+		////else
+		////	m_ListBox.SetItemTextColor(dwitem,j,RGB(0,0,0));
+
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"시가");	strData.Trim();
+		//m_ListBox.SetItem(nRow,5,1,strData,0,0,0,0);
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"고가");	strData.Trim();
+		//m_ListBox.SetItem(nRow,6,1,strData,0,0,0,0);
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"시가");	strData.Trim();
+		//m_ListBox.SetItem(nRow,7,1,strData,0,0,0,0);
 	}
 }
 //*******************************************************************/
@@ -841,13 +882,7 @@ void CBuyList::OnBnClickedButtonAdd(CString t_strCode)
 
 
 
-void CBuyList::OnHdnItemclickList(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
-	// TODO: Add your control notification handler code here
 
-	*pResult = 0;
-}
 
 
 void CBuyList::OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult)
