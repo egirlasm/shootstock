@@ -798,10 +798,11 @@ void CBuyList::OnBnClickedOrder1()
 	long lRet;
 	nowPrice.Replace(L",",L"");
 	int buyCount = theApp.g_MyMoney / _wtoi(nowPrice) -1;
+	pMain->m_boughtCount = buyCount;
 	CString fmt;
 	fmt.Format(L"주식종목 %s ,주식가능수 %d, 주식 현재가 %s",strJongCode,buyCount,nowPrice);
 	pMain->TraceOutputW(fmt);
-	lRet = theApp.m_khOpenApi.SendOrder(strRQName, pMain->m_strScrNo, L"8100875411", 1, strJongCode, buyCount, 0, L"03", L"");
+	lRet = theApp.m_khOpenApi.SendOrder(strRQName, pMain->m_strScrNo,pMain->m_AccNo, 1, strJongCode, buyCount, 0, L"03", L"");
 }
 
 

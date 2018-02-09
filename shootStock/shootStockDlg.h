@@ -31,6 +31,7 @@ public:
 	CMapStringToString m_OrderList;
 	CString							m_strScrNo;
 	CMapStringToString		m_mapJongCode;		// 리얼등록 종목
+	CMapStringToString		m_mapOrderNo;
 	int m_nScrN0;
 	CMapStringToString m_mapScreenNum;
 	long								m_nCount;					// 그리드 Row 갯수.
@@ -64,6 +65,7 @@ protected:
 	void MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTSTR sRealData);
 	void OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTSTR sRealData);
 	void OnReceiveMsgKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode, LPCTSTR sMsg);
+	void MainOnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCTSTR sFidList);
 	void OnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCTSTR sFidList);
 	void OnEventConnect(LONG nItemCnt);
 	void OnReceiveRealCondition(LPCTSTR strCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex);			//조건검색 실시간 삽입,삭제되는 종목을 받는다
@@ -101,4 +103,13 @@ public:
 	CString m_staticPrice;
 	CString m_boardJongmokCode;
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	float m_sellPercentage;
+	int m_FuckPercentage;
+	bool isRunning;
+	// 매수 체결가
+	int m_boughtPrice;
+	// 체결된 수량
+	int m_checkedCount;
+	CString m_checkedCode;
+	int m_boughtCount;
 };

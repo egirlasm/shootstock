@@ -21,7 +21,7 @@ END_MESSAGE_MAP()
 // CshootStockApp 생성
 
 CshootStockApp::CshootStockApp()
-	: g_MyMoney(0)
+	: g_MyMoney(500000)
 {
 	// 다시 시작 관리자 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -81,7 +81,6 @@ BOOL CshootStockApp::InitInstance()
 	// 적절한 내용으로 수정해야 합니다.
 	SetRegistryKey(_T("로컬 응용 프로그램 마법사에서 생성된 응용 프로그램"));
 
-	g_MyMoney = 500000;//50만 기준으로 시작..
 
 
 	CshootStockDlg dlg;
