@@ -52,11 +52,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>..\lib32\chartdir60.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -111,6 +113,8 @@
     <ClInclude Include="..\Registry\Registry.h" />
     <ClInclude Include="..\ReportCtrl\ReportCtrl.h" />
     <ClInclude Include="BuyList.h" />
+    <ClInclude Include="ChartView.h" />
+    <ClInclude Include="ChartViewer.h" />
     <ClInclude Include="CurPrice.h" />
     <ClInclude Include="DailyReport.h" />
     <ClInclude Include="JongDlg.h" />
@@ -127,6 +131,8 @@
     <ClCompile Include="..\Registry\Registry.cpp" />
     <ClCompile Include="..\ReportCtrl\ReportCtrl.cpp" />
     <ClCompile Include="BuyList.cpp" />
+    <ClCompile Include="ChartView.cpp" />
+    <ClCompile Include="ChartViewer.cpp" />
     <ClCompile Include="CurPrice.cpp" />
     <ClCompile Include="DailyReport.cpp" />
     <ClCompile Include="JongDlg.cpp" />

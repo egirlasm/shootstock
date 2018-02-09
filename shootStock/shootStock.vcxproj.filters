@@ -93,6 +93,12 @@
     <ClInclude Include="DailyReport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ChartView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shootStock.cpp">
@@ -129,6 +135,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DailyReport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -143,6 +143,7 @@ BEGIN_MESSAGE_MAP(CBuyList, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SELLALL, &CBuyList::OnBnClickedButtonSellall)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBuyList::OnBnClickedButtonTest)
 	ON_NOTIFY(NM_CLICK, IDC_LIST1, &CBuyList::OnNMClickList)
+	ON_BN_CLICKED(IDC_BUTTON_CHATVIEW, &CBuyList::OnBnClickedButtonChatview)
 END_MESSAGE_MAP()
 
 
@@ -904,4 +905,21 @@ void CBuyList::OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult)
 		}
 	}
 	*pResult = 0;
+}
+
+
+void CBuyList::OnBnClickedButtonChatview()
+{
+	// TODO: Add your control notification handler code here
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	if (!pMain->GetNextScreenNum(5))
+	{
+		return;
+	}
+	
+	CChartView *pChartView = new CChartView(this);
+	pChartView->m_strScrNo.Format(_T("%04d"), pMain->m_nScrN0);
+	pChartView->Create(IDD_DIALOG_CHART);
+
+	pMain->m_mapScreen.SetAt(pChartView->m_strScrNo, pChartView);
 }

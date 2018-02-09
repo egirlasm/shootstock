@@ -44,4 +44,5 @@ public:
 	afx_msg void OnBnClickedButtonTest();
 	
 	afx_msg void OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedButtonChatview();
 };
