@@ -391,319 +391,81 @@ static void CvtToKorean(char ch[256], string str)
 /// <param name="viewer">The ChartViewer object to display the chart.</param>
 void CChartView::drawChart(CChartViewer *viewer)
 {
-	// In this demo, we just assume we plot up to the latest time. So endDate is now.
-	double endDate = Chart::chartTime2((int)time(0));
+	int noOfDays = 100;
 
-	// If the trading day has not yet started (before 9:30am), or if the end date is on
-	// on Sat or Sun, we set the end date to 4:00pm of the last trading day     
-	while ((fmod(endDate, 86400) < 9 * 3600 + 30 * 60) || 
-		(Chart::getChartWeekDay(endDate) == 0)
-		|| (Chart::getChartWeekDay(endDate) == 6))
-		endDate = endDate - fmod(endDate, 86400) - 86400 + 16 * 3600;
+	// To compute moving averages starting from the first day, we need to get extra data points before
+	// the first day
+	int extraDays = 30;
 
-	// The duration selected by the user
-// 	int durationInDays = (int)_tcstol((const TCHAR *)m_TimeRange.GetItemDataPtr(
-// 		m_TimeRange.GetCurSel()), 0, 0);
-	int durationInDays = 180;
-	// Compute the start date by subtracting the duration from the end date.
-	double startDate;
-	if (durationInDays >= 30)
-	{
-		// More or equal to 30 days - so we use months as the unit
-		int YMD = Chart::getChartYMD(endDate);
-		int startMonth = (YMD / 100) % 100 - durationInDays / 30;
-		int startYear = YMD / 10000;
-		while (startMonth < 1)
-		{
-			--startYear;
-			startMonth += 12;
-		}
-		startDate = Chart::chartTime(startYear, startMonth, 1);
-	}
-	else
-	{
-		// Less than 30 days - use day as the unit. The starting point of the axis is
-		// always at the start of the day (9:30am). Note that we use trading days, so
-		// we skip Sat and Sun in counting the days.
-		startDate = endDate - fmod(endDate, 86400) + 9 * 3600 + 30 * 60;
-		for (int i = 1; i < durationInDays; ++i)
-		{
-			if (Chart::getChartWeekDay(startDate) == 1)
-				startDate -= 3 * 86400;
-			else
-				startDate -= 86400;
-		}
-	}
+	// In this exammple, we use a random number generator utility to simulate the data. We set up the
+	// random table to create 6 cols x (noOfDays + extraDays) rows, using 9 as the seed.
+	RanTable rantable(9, 6, noOfDays + extraDays);
 
-	// The first moving average period selected by the user.
-	CString avgText;
-	//m_MovAvg1.GetWindowText(avgText);
-	m_avgPeriod1 = 5;
-	if (m_avgPeriod1 < 0)
-		m_avgPeriod1 = 0;
-	if (m_avgPeriod1 > 300)
-		m_avgPeriod1 = 300;
+	// Set the 1st col to be the timeStamp, starting from Sep 4, 2011, with each row representing one
+	// day, and counting week days only (jump over Sat and Sun)
+	rantable.setDateCol(0, Chart::chartTime(2011, 9, 4), 86400, true);
 
-	// The second moving average period selected by the user.
-	//m_MovAvg2.GetWindowText(avgText);
-	m_avgPeriod2 = 20;//(int)_tcstol(avgText, 0, 0);
-	if (m_avgPeriod2 < 0)
-		m_avgPeriod2 = 0;
-	if (m_avgPeriod2 > 300)
-		m_avgPeriod2 = 300;
+	// Set the 2nd, 3rd, 4th and 5th columns to be high, low, open and close data. The open value
+	// starts from 100, and the daily change is random from -5 to 5.
+	rantable.setHLOCCols(1, 100, -5, 5);
 
-	// We need extra leading data points in order to compute moving averages.
-	int extraPoints = (m_avgPeriod1 > m_avgPeriod2) ? m_avgPeriod1 : m_avgPeriod2;
-	if (extraPoints < 25)
-		extraPoints = 25;
+	// Set the 6th column as the vol data from 5 to 25 million
+	rantable.setCol(5, 50000000, 250000000);
 
-	// Get the data series to compare with, if any.
-	//m_CompareWith.GetWindowText(m_compareKey);
-	//delete[] m_compareData;
-	m_compareData = 0;
-	if (getData(m_compareKey, startDate, endDate, durationInDays, extraPoints)) 
-	{
-		m_compareData = m_closeData;
-		m_compareDataLen = m_noOfPoints;
-		m_closeData = 0;
-	}
+	// Now we read the data from the table into arrays
+	DoubleArray timeStamps = rantable.getCol(0);
+	DoubleArray highData = rantable.getCol(1);
+	DoubleArray lowData = rantable.getCol(2);
+	DoubleArray openData = rantable.getCol(3);
+	DoubleArray closeData = rantable.getCol(4);
+	DoubleArray volData = rantable.getCol(5);
 
-	// The data series we want to get.
-	//m_TickerSymbol.GetWindowText(m_tickerKey);
-	char ch[256];
-	CvtToKorean(ch, "카카오");
+	// Create a FinanceChart object of width 720 pixels
+	FinanceChart *c = new FinanceChart(720);
 
+	// Add a title to the chart
+	c->addTitle("Finance Chart Demonstration");
 
-	m_tickerKey ="asdf";
-	if (!getData(m_tickerKey, startDate, endDate, durationInDays, extraPoints)) 
-	{
-		errMsg(viewer, "Please enter a valid ticker symbol");
-		return;
-	}
+	// Disable default legend box, as we are using dynamic legend
+	c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
 
-	// We now confirm the actual number of extra points (data points that are before
-	// the start date) as inferred using actual data from the database.
-	for (extraPoints = 0; extraPoints < m_noOfPoints; ++extraPoints)
-	{
-		if (m_timeStamps[extraPoints] >= startDate)
-			break;
-	}
+	// Set the data into the finance chart object
+	c->setData(timeStamps, highData, lowData, openData, closeData, volData, extraDays);
 
-	// Check if there is any valid data
-	if (extraPoints >= m_noOfPoints)
-	{
-		// No data - just display the no data message.
-		errMsg(viewer, "No data available for the specified time period");
-		return;
-	}
+	// Add the main chart with 240 pixels in height
+	c->addMainChart(240);
 
-	// In some finance chart presentation style, even if the data for the latest day 
-	// is not fully available, the axis for the entire day will still be drawn, where
-	// no data will appear near the end of the axis.
-	int extraTrailingPoints = 0;
-	if (m_resolution <= 86400)
-	{
-		// Add extra points to the axis until it reaches the end of the day. The end
-		// of day is assumed to be 16:00 (it depends on the stock exchange).
-		double lastTime = m_timeStamps[m_noOfPoints - 1];
-		extraTrailingPoints = (int)((16 * 3600 - fmod(lastTime, 86400)) / m_resolution);
-		if (extraTrailingPoints > 0)
-		{
-			double *extendedTimeStamps = new double[m_noOfPoints + extraTrailingPoints];
-			memcpy(extendedTimeStamps, m_timeStamps, sizeof(double) * m_noOfPoints);
-			for (int i = 0; i < extraTrailingPoints; ++i)
-				extendedTimeStamps[m_noOfPoints + i] = lastTime + m_resolution * (i + 1);
-			delete[] m_timeStamps;
-			m_timeStamps = extendedTimeStamps;
-		}
-	}
+	// Add a 10 period simple moving average to the main chart, using brown color
+	c->addSimpleMovingAvg(10, 0x663300);
 
-	//
-	// At this stage, all data is available. We can draw the chart as according to 
-	// user input.
-	//
+	// Add a 20 period simple moving average to the main chart, using purple color
+	c->addSimpleMovingAvg(20, 0x9900ff);
 
-	//
-	// Determine the chart size. In this demo, user can select 4 different chart sizes.
-	// Default is the large chart size.
-	//
-	CRect rr;
-	this->GetWindowRect(&rr);
-	int width = 780;//rr.Width()-20;//780;
-	int mainHeight = 255;//rr.Height()-120;// 255;
-	int indicatorHeight = 80; //거래량
+	// Add candlestick symbols to the main chart, using green/red for up/down days
+	c->addCandleStick(0x00ff00, 0xff0000);
 
-	CString selectedSize = L"L";// (const TCHAR *)m_ChartSize.GetItemDataPtr(m_ChartSize.GetCurSel());
-	if (selectedSize == _T("S"))
-	{
-		// Small chart size
-		width = 450;
-		mainHeight = 160;
-		indicatorHeight = 60;
-	}
-	else if (selectedSize == _T("M"))
-	{
-		// Medium chart size
-		width = 620;
-		mainHeight = 215;
-		indicatorHeight = 70;
-	}
-	else if (selectedSize == _T("H"))
-	{
-		// Huge chart size
-		width = 1000;
-		mainHeight = 320;
-		indicatorHeight = 90;
-	}
+	// Add 20 days bollinger band to the main chart, using light blue (9999ff) as the border and
+	// semi-transparent blue (c06666ff) as the fill color
+	c->addBollingerBand(20, 2, 0x9999ff, 0xc06666ff);
 
-	// Create the chart object using the selected size
-	FinanceChart m(width);
+	// Add a 75 pixels volume bars sub-chart to the bottom of the main chart, using green/red/grey for
+	// up/down/flat days
+	c->addVolBars(75, 0x99ff99, 0xff9999, 0x808080);
 
-	// Set the data into the chart object
-	m.setData(DoubleArray(m_timeStamps, m_noOfPoints + extraTrailingPoints), 
-		DoubleArray(m_highData, m_noOfPoints), DoubleArray(m_lowData, m_noOfPoints), 
-		DoubleArray(m_openData, m_noOfPoints), DoubleArray(m_closeData, m_noOfPoints),
-		DoubleArray(m_volData, m_noOfPoints), extraPoints);
+	// Append a 14-days RSI indicator chart (75 pixels high) after the main chart. The main RSI line
+	// is purple (800080). Set threshold region to +/- 20 (that is, RSI = 50 +/- 25). The upper/lower
+	// threshold regions will be filled with red (ff0000)/blue (0000ff).
+	c->addRSI(75, 14, 0x800080, 20, 0xff0000, 0x0000ff);
 
-	//
-	// We configure the title of the chart. In this demo chart design, we put the
-	// company name as the top line of the title with left alignment.
-	//
-	CString companyName;
-	//m_TickerSymbol.GetWindowText(companyName);
+	// Append a MACD(26, 12) indicator chart (75 pixels high) after the main chart, using 9 days for
+	// computing divergence.
+	c->addMACD(75, 26, 12, 9, 0x0000ff, 0xff00ff, 0x008000);
 
+	// Include track line with legend for the latest data values
+	trackFinance(c, ((XYChart *)c->getChart(0))->getPlotArea()->getRightX());
 
-	companyName =  L"아아라시발";
-	m.addPlotAreaTitle(Chart::TopLeft, TCHARtoUTF8(companyName));
-
-	// We displays the current date as well as the data resolution on the next line.
-	const char *resolutionText = "";
-	if (m_resolution == 30 * 86400)
-		resolutionText = "Monthly";
-	else if (m_resolution == 7 * 86400)
-		resolutionText = "Weekly";
-	else if (m_resolution == 86400)
-		resolutionText = "Daily";
-	else if (m_resolution == 900)
-		resolutionText = "15-min";
-
-	char buffer[1024];
-	sprintf(buffer, "<*font=arial.ttf,size=8*>%s - %s chart", 
-		m.formatValue(Chart::chartTime2((int)time(0)), "mmm dd, yyyy"), resolutionText);
-	m.addPlotAreaTitle(Chart::BottomLeft, buffer);
-
-	// A copyright message at the bottom left corner the title area
-	m.addPlotAreaTitle(Chart::BottomRight, 
-		"<*font=arial.ttf,size=8*>(c) coding by egirlasm");
-
-	//
-	// Add the first techical indicator according. In this demo, we draw the first
-	// indicator on top of the main chart.
-	//
-	//addIndicator(&m, L"None",// (const TCHAR *)m_Indicator1.GetItemDataPtr(m_Indicator1.GetCurSel()), 
-	//	indicatorHeight);
-
-	//
-	// Add the main chart
-	//
-	m.addMainChart(mainHeight);
-
-	//
-	// Set log or linear scale according to user preference
-	//
-	m.setLogScale(false);
-
-	//
-	// Set axis labels to show data values or percentage change to user preference
-	//
-	if (false)// //m_PercentageScale.GetCheck())
-		m.setPercentageAxis();
-
-	//
-	// Draw the main chart depending on the chart type the user has selected
-	//
-	CString selectedType = L"CandleStick";
-// = (const TCHAR *)m_ChartType.GetItemDataPtr(m_ChartType.GetCurSel());
-	if (selectedType == _T("Close"))
-		m.addCloseLine(0x000040);
-	else if (selectedType == _T("TP"))
-		m.addTypicalPrice(0x000040);
-	else if (selectedType == _T("WC"))
-		m.addWeightedClose(0x000040);
-	else if (selectedType == _T("Median"))
-		m.addMedianPrice(0x000040);
-
-	//
-	// Add comparison line if there is data for comparison
-	//
-	if (m_compareData != 0) {
-		if (m_compareDataLen > extraPoints) {
-			m.addComparison(DoubleArray(m_compareData, m_compareDataLen), 0x0000ff, 
-				TCHARtoUTF8(m_compareKey));
-		}
-	}
-
-	//
-	// Add moving average lines.
-	//  移动平均线 
-	//addMovingAvg(&m,L"SMA", //(const TCHAR *)m_AvgType1.GetItemDataPtr(m_AvgType1.GetCurSel()), 
-	//	m_avgPeriod1, 0x663300);
-	//addMovingAvg(&m, L"SMA",//(const TCHAR *)m_AvgType2.GetItemDataPtr(m_AvgType2.GetCurSel()), 
-	//	m_avgPeriod2, 0x9900ff);
-
-	//
-	// Draw the main chart if the user has selected CandleStick or OHLC. We
-	// draw it here to make sure it is drawn behind the moving average lines
-	// (that is, the moving average lines stay on top.)
-	//
-	if (selectedType == _T("CandleStick"))
-		m.addCandleStick(0x0000ff, 0xff3333);
-	else if (selectedType == _T("OHLC"))
-		m.addHLOC(0x8000, 0x800000);
-
-	//
-	// Add parabolic SAR if necessary
-	//
-	if (false)//m_ParabolicSAR.GetCheck())
-		m.addParabolicSAR(0.02, 0.02, 0.2, Chart::DiamondShape, 5, 0x008800, 0x000000);
-
-	//
-	// Add price band/channel/envelop to the chart according to user selection
-	//
-	//CString selectedBand = L"BB";// (const TCHAR *)m_Band.GetItemDataPtr(m_Band.GetCurSel());
-	//if (selectedBand == _T("BB"))
-	//	m.addBollingerBand(20, 2, 0x9999ff, 0xc06666ff);
-	//else if (selectedBand == _T("DC"))
-	//	m.addDonchianChannel(20, 0x9999ff, 0xc06666ff);
-	//else if (selectedBand == _T("Envelop"))
-	//	m.addEnvelop(20, 0.1, 0x9999ff, 0xc06666ff);
-
-	//
-	// Add volume bars to the main chart if necessary
-	//
-	if (true)//m_Volume.GetCheck())
-		m.addVolBars(indicatorHeight, 0x99ff99, 0xff9999, 0xc0c0c0);
-
-	//
-	// Add additional indicators as according to user selection.
-	//
-	addIndicator(&m,L"RSI",// (const TCHAR *)m_Indicator2.GetItemDataPtr(m_Indicator2.GetCurSel()), 
-		indicatorHeight);
-	//addIndicator(&m, L"None",// (const TCHAR *)m_Indicator3.GetItemDataPtr(m_Indicator3.GetCurSel()), 
-	//	indicatorHeight);
-	//addIndicator(&m, L"None",// (const TCHAR *)m_Indicator4.GetItemDataPtr(m_Indicator4.GetCurSel()), 
-	//	indicatorHeight);
-
-	// Set the chart to the viewer
-
-	XYChart * xChart = (XYChart*)m.getChart(0);
-	trackFinance(&m, xChart->getPlotArea()->getRightX());
-	viewer->setChart(&m);
-
-	// Set image map (for tool tips) to the viewer
-	m.setToolTipDateFormat("[{xLabel|yyyy mmm d}]","[{xLabel|yyyy mmm d}]","[{xLabel|yyyy mmm d}]");
-	sprintf(buffer, "title='%s {value|P}'", m.getToolTipDateFormat());
-	viewer->setImageMap(m.getHTMLImageMap("", "", buffer));
+	// Assign the chart to the WinChartViewer
+	viewer->setChart(c);
 }
 
 
@@ -715,6 +477,8 @@ void CChartView::OnBnClickedButtonRefresh()
 	//
 	// Sample data for the CandleStick chart.
 	//
+	drawChart(&m_ChartViewer);
+	return;
 	double highData[] = {2043, 2039, 2076, 2064, 2048, 2058, 2070, 2033, 2027, 2029, 2071, 2085,
 		2034, 2031, 2056, 2128, 2180, 2183, 2192, 2213, 2230, 2281, 2272};
 
