@@ -46,6 +46,7 @@ public:
 
 	virtual BOOL OnInitDialog();
 	CChartViewer m_ChartViewer;
+	void trackFinance(MultiChart *m, int mouseX);
 	virtual void drawChart(CChartViewer *viewer);
 	virtual bool getData(const CString &ticker, double startDate, double endDate,
 		int durationInDays, int extraPoints);
@@ -57,4 +58,8 @@ public:
 	// In the demo, we just use random numbers for data.
 	virtual void generateRandomData(const CString &ticker, double startDate, double endDate, 
 		int resolution);
+	
+	afx_msg void OnBnClickedButtonRefresh();
+	afx_msg void OnBnClickedButtonAdd();
+	afx_msg void OnMouseMovePlotArea();
 };
