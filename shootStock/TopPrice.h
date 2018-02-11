@@ -5,6 +5,21 @@
 #include "afxdtctl.h"
 // CTopPrice dialog
 
+
+class TopData{
+public:
+	CString strCode;
+	CString strOpen;
+	CString strHigh;
+	CString strLow;
+	CString strClose;
+	CString strRate;
+	CString strVol;
+	CString strBuyerPersonal;
+	CString strBuyerOrganizational;
+	CString strBuyerForeigner;
+};
+
 class CTopPrice : public CDialogEx
 {
 	DECLARE_DYNAMIC(CTopPrice)
@@ -17,6 +32,8 @@ public:
 	enum { IDD = IDD_TOP_PRICE };
 	CMapStringToString		m_mapJongCode;		// 리얼등록 종목
 	CString							m_strScrNo;
+	TopData	* m_ArrTopdata;
+	int		  m_ArrCount;
 	void OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTSTR sRealData);
 	void OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg);
 protected:
@@ -35,4 +52,5 @@ public:
 	CDateTimeCtrl m_DateCtrl;
 	afx_msg void OnBnClickedButtonPrev();
 	afx_msg void OnBnClickedButtonNext();
+	void BackupToSqlite(void);
 };

@@ -11,7 +11,30 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include "shootStockDlg.h"
 // CChartView dialog
+
+
+// {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
+const stGRID lstOPT10081[] = 
+{
+	{L"종목코드",			L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"현재가",				L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"거래량",				L"10",	0,	0,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"거래대금",			L"25",	0,	1,	DT_SIGN,		TRUE,	DT_CENTER,L"",L""}, 
+	{L"일자",				L"11",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"시가",				L"12",	0,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"고가",				L"13",	0,	4,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	{L"저가",				L"30",	0,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"수정주가구분",		L"-1",	0,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"수정비율",			L"-1",	0,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"대업종구분",			L"-1",	0,	8,	DT_DATE,		FALSE,	DT_CENTER,L"",L""}, 
+	{L"소업종구분",			L"-1",	0,	9,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,L"",L" 원"}, 
+	{L"종목정보",			L"-1",	0,	10,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L" 억"}, 
+	{L"수정주가이벤트",		L"-1",	0,	11,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	{L"전일종가",			L"-1",	1,	12,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+
+};
 
 IMPLEMENT_DYNAMIC(CChartView, CDialogEx)
 
@@ -29,6 +52,7 @@ void CChartView::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHART_VIEWER, m_ChartViewer);
+	DDX_Control(pDX, IDC_VIEW_PORT_CTRL, m_ViewPortControl);
 }
 
 
@@ -36,11 +60,141 @@ BEGIN_MESSAGE_MAP(CChartView, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CChartView::OnBnClickedButtonRefresh)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CChartView::OnBnClickedButtonAdd)
 	 ON_CONTROL(CVN_MouseMovePlotArea, IDC_CHART_VIEWER, OnMouseMovePlotArea)
+	  ON_CONTROL(CVN_ViewPortChanged, IDC_CHART_VIEWER, OnViewPortChanged)
 END_MESSAGE_MAP()
 
 
 // CChartView message handlers
+//*******************************************************************/
+//! Function Name : OnReceiveTrDataKhopenapictrl
+//! Function      : 조회 응답 처리
+//! Param         : LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg
+//! Return        : void
+//! Create        : , 2014/06/02
+//! Comment       : 
+//******************************************************************/
+void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg)
+{
+	CString strRQName = sRQName;
+	if (strRQName == _T("주식일봉차트조회요청"))			// 관심종목정보 설정
+	{
+		CString strData;
+		CStringArray arrData;
+		
+		
+		int nFieldCnt = sizeof(lstOPT10081) / sizeof(*lstOPT10081);		// 전체크기 / 원소크기 = 원소개수
+		//m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 		CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+		// 		//pMain->m_buyList.m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 
+		// 		CReportCtrl * pListCtrl = &pMain->m_buyList.m_ListBox;
+		strRQName = _T("주식일봉차트");
 
+		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"종목코드");	strData.Trim();
+		if(strData.IsEmpty()){
+			return; //종목코드가 비여있으면 차트데이터도 비여있음
+		}
+		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);
+		//nCnt = 150;
+		double * open = new double[nCnt];
+		double * high = new double[nCnt];
+		double * low = new double[nCnt];
+		double * close = new double[nCnt];
+		double * vol = new double[nCnt];
+		double * time = new double[nCnt];
+		//double open[nCnt],high[nCnt],low[nCnt],close[nCnt],vol[nCnt];
+		for (i = 0; i <= nCnt; i++)
+		{
+			int k = nCnt - i;
+			for (j = 0; j < nFieldCnt; j++)
+			{
+				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstOPT10081[j].strKey);	strData.Trim();
+				if(j == 2)
+					vol[k] = _wtof(strData);
+				if(j == 4){
+					int y = _wtoi(strData.Mid(0,4));
+					int m = _wtoi(strData.Mid(4,2));
+					int d = _wtoi(strData.Mid(6,2));
+					time[k] = Chart::chartTime(y,m,d);
+				}
+					
+				if(j == 5)
+					open[k] = _wtof(strData);
+				if(j == 6)
+					high[k] = _wtof(strData);
+				if(j == 7)
+					low[k] = _wtof(strData);
+				if(j == 1)
+					close[k] = _wtof(strData);
+ 			}
+		}
+		DoubleArray t_vol(vol,nCnt);
+		DoubleArray t_open(open,nCnt);
+		DoubleArray t_high(high,nCnt);
+		DoubleArray t_low(low,nCnt);
+		DoubleArray t_close(close,nCnt);
+		DoubleArray t_time(time,nCnt);
+		//CChartView * viewer = m_ChartViewer;
+		m_timeStamps = t_time;
+		m_openData = t_open;
+		m_highData = t_high;
+		m_lowData = t_low;
+		m_closeData = t_close;
+		m_volData = t_vol;
+		// Set the full x range to be the duration of the data
+		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]);
+
+		// Initialize the view port to show the latest 20% of the time range
+		m_ChartViewer.setViewPortWidth(0.2);
+		
+		m_ChartViewer.setViewPortLeft(1 - m_ChartViewer.getViewPortWidth());
+
+		// Set the maximum zoom to 10 points
+		m_ChartViewer.setZoomInWidthLimit(10.0 / t_time.len);
+
+		// Initially set the mouse to drag to scroll mode.
+		//m_PointerPB.SetCheck(1);
+		m_ChartViewer.setMouseUsage(Chart::MouseUsageScroll);
+
+		// Enable mouse wheel zooming by setting the zoom ratio to 1.1 per wheel event
+		m_ChartViewer.setMouseWheelZoomRatio(1.1);
+		m_ChartViewer.updateViewPort(true, true);
+
+		CRect r;
+		GetWindowRect(&r);
+
+		FinanceChart *c = new FinanceChart(r.Width()-50);
+		// Create an XYChart object of size 640 x 70 pixels   
+		// Disable default legend box, as we are using dynamic legend
+		c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+
+		// Set the data into the finance chart object
+		c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+
+		// Add the main chart with 240 pixels in height
+		c->addMainChart(70);
+
+		// Add candlestick symbols to the main chart, using green/red for up/down days
+		c->addCandleStick(0x00ff00, 0xff0000);
+
+		// Output the chart
+		m_ViewPortControl.setChart(c);
+		// Output the chart
+		
+		 m_ViewPortControl.setViewer(&m_ChartViewer);
+	}
+}
+//*******************************************************************/
+//! Function Name	: OnReceiveRealDataKhopenapictrl
+//! Function			: 실시간 처리
+//! Param				: LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTSTR sRealData
+//! Return				: void
+//! Create				: , 2015/05/07
+//! Comment			: 
+//******************************************************************/
+void CChartView::OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTSTR sRealData)
+{
+}
 
 BOOL CChartView::OnInitDialog()
 {
@@ -53,7 +207,17 @@ BOOL CChartView::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-
+//
+// The ViewPortChanged event handler. This event occurs if the user scrolls or zooms in or 
+// out the chart by dragging or clicking on the chart. It can also be triggered by calling
+// CChartViewer.updateViewPort.
+//
+void CChartView::OnViewPortChanged()
+{
+	// Update the chart if necessary
+	if (m_ChartViewer.needUpdateChart())
+		drawChart(&m_ChartViewer);
+}
 /////////////////////////////////////////////////////////////////////////////
 // Data source
 
@@ -154,7 +318,7 @@ void CChartView::get15MinData(const CString &ticker, double startDate, double en
 	// minute data, you may modify the "drawChart" method below to not using 15 minute
 	// data.
 	//
-	generateRandomData(ticker, startDate, endDate, 900);
+//	generateRandomData(ticker, startDate, endDate, 900);
 }
 
 /// <summary>
@@ -171,7 +335,7 @@ void CChartView::getDailyData(const CString &ticker, double startDate, double en
 	// with your own data acquisition code.
 	//
 
-	generateRandomData(ticker, startDate, endDate, 86400);
+//	generateRandomData(ticker, startDate, endDate, 86400);
 }
 
 
@@ -275,7 +439,7 @@ void CChartView::getWeeklyData(const CString &ticker, double startDate, double e
 	//      getDailyData(startDate, endDate);
 	//      convertDailyToWeeklyData();
 	//
-	generateRandomData(ticker, startDate, endDate, 86400 * 7);
+//	generateRandomData(ticker, startDate, endDate, 86400 * 7);
 }
 
 /// <summary>
@@ -295,7 +459,7 @@ void CChartView::getMonthlyData(const CString &ticker, double startDate, double 
 	//      getDailyData(startDate, endDate);
 	//      convertDailyToMonthlyData();
 	//
-	generateRandomData(ticker, startDate, endDate, 86400 * 30);
+//	generateRandomData(ticker, startDate, endDate, 86400 * 30);
 }
 
 
@@ -311,43 +475,7 @@ static void errMsg(CChartViewer* viewer, const char *msg)
 	viewer->setChart(&m);
 }
 
-/// <summary>
-/// A random number generator designed to generate realistic financial data.
-/// </summary>
-/// <param name="startDate">The starting date/time for the data series.</param>
-/// <param name="endDate">The ending date/time for the data series.</param>
-/// <param name="resolution">The period of the data series.</param>
-void CChartView::generateRandomData(const CString &ticker, double startDate, double endDate, 
-	int resolution)
-{
-	// free the previous data arrays
-	//delete[] m_timeStamps;
-	//delete[] m_highData;
-	//delete[] m_lowData;
-	//delete[] m_openData;
-	//delete[] m_closeData;
-	//delete[] m_volData; 
 
-	// The financial simulator
-	FinanceSimulator db(TCHARtoUTF8(ticker), startDate, endDate, resolution);
-
-	// Allocate the data arrays
-	m_noOfPoints = db.getTimeStamps().len;
-	m_timeStamps = new double[m_noOfPoints];
-	m_highData = new double[m_noOfPoints];
-	m_lowData = new double[m_noOfPoints];
-	m_openData = new double[m_noOfPoints];
-	m_closeData = new double[m_noOfPoints];
-	m_volData = new double[m_noOfPoints];   
-
-	// Copy data to the data arrays
-	memcpy(m_timeStamps, db.getTimeStamps().data, m_noOfPoints * sizeof(double));
-	memcpy(m_highData, db.getHighData().data, m_noOfPoints * sizeof(double));
-	memcpy(m_lowData, db.getLowData().data, m_noOfPoints * sizeof(double));
-	memcpy(m_openData, db.getOpenData().data, m_noOfPoints * sizeof(double));
-	memcpy(m_closeData, db.getCloseData().data, m_noOfPoints * sizeof(double));
-	memcpy(m_volData, db.getVolData().data, m_noOfPoints * sizeof(double));
-}
 /////////////////////////////////////////////////////////////////////////////
 // Chart Creation
 
@@ -391,80 +519,61 @@ static void CvtToKorean(char ch[256], string str)
 /// <param name="viewer">The ChartViewer object to display the chart.</param>
 void CChartView::drawChart(CChartViewer *viewer)
 {
-	int noOfDays = 100;
-
-	// To compute moving averages starting from the first day, we need to get extra data points before
-	// the first day
-	int extraDays = 30;
-
-	// In this exammple, we use a random number generator utility to simulate the data. We set up the
-	// random table to create 6 cols x (noOfDays + extraDays) rows, using 9 as the seed.
-	RanTable rantable(9, 6, noOfDays + extraDays);
-
-	// Set the 1st col to be the timeStamp, starting from Sep 4, 2011, with each row representing one
-	// day, and counting week days only (jump over Sat and Sun)
-	rantable.setDateCol(0, Chart::chartTime(2011, 9, 4), 86400, true);
-
-	// Set the 2nd, 3rd, 4th and 5th columns to be high, low, open and close data. The open value
-	// starts from 100, and the daily change is random from -5 to 5.
-	rantable.setHLOCCols(1, 100, -5, 5);
-
-	// Set the 6th column as the vol data from 5 to 25 million
-	rantable.setCol(5, 50000000, 250000000);
-
-	// Now we read the data from the table into arrays
-	DoubleArray timeStamps = rantable.getCol(0);
-	DoubleArray highData = rantable.getCol(1);
-	DoubleArray lowData = rantable.getCol(2);
-	DoubleArray openData = rantable.getCol(3);
-	DoubleArray closeData = rantable.getCol(4);
-	DoubleArray volData = rantable.getCol(5);
-
+	
+	CRect r;
+	GetWindowRect(&r);
 	// Create a FinanceChart object of width 720 pixels
-	FinanceChart *c = new FinanceChart(720);
+	FinanceChart *c = new FinanceChart(r.Width()-50);
 
 	// Add a title to the chart
 	c->addTitle("Finance Chart Demonstration");
-
+	
 	// Disable default legend box, as we are using dynamic legend
 	c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
 
 	// Set the data into the finance chart object
-	c->setData(timeStamps, highData, lowData, openData, closeData, volData, extraDays);
+	c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+
 
 	// Add the main chart with 240 pixels in height
-	c->addMainChart(240);
+
+	c->addMainChart(r.Height()-350);
+
+	//Axis * ppp = ((XYChart*)c->getChart())->xAxis();
+	//viewer->syncDateAxisWithViewPort("x",ppp);
 
 	// Add a 10 period simple moving average to the main chart, using brown color
-	c->addSimpleMovingAvg(10, 0x663300);
+	//c->addSimpleMovingAvg(5, 0x1A8D21);
 
 	// Add a 20 period simple moving average to the main chart, using purple color
-	c->addSimpleMovingAvg(20, 0x9900ff);
-
+	//c->addSimpleMovingAvg(20, 0x9900ff);
+	//c->addSimpleMovingAvg(60, 0x8C85E4);
 	// Add candlestick symbols to the main chart, using green/red for up/down days
-	c->addCandleStick(0x00ff00, 0xff0000);
+	c->addCandleStick( 0xff0000,0x0000ff);
 
 	// Add 20 days bollinger band to the main chart, using light blue (9999ff) as the border and
 	// semi-transparent blue (c06666ff) as the fill color
-	c->addBollingerBand(20, 2, 0x9999ff, 0xc06666ff);
+	//c->addBollingerBand(20, 2, 0x9999ff, 0xc06666ff);
 
 	// Add a 75 pixels volume bars sub-chart to the bottom of the main chart, using green/red/grey for
 	// up/down/flat days
-	c->addVolBars(75, 0x99ff99, 0xff9999, 0x808080);
+	c->addVolBars(75, 0xff0000, 0x0000ff, 0x808080);
 
 	// Append a 14-days RSI indicator chart (75 pixels high) after the main chart. The main RSI line
 	// is purple (800080). Set threshold region to +/- 20 (that is, RSI = 50 +/- 25). The upper/lower
 	// threshold regions will be filled with red (ff0000)/blue (0000ff).
-	c->addRSI(75, 14, 0x800080, 20, 0xff0000, 0x0000ff);
+	//c->addRSI(75, 14, 0x800080, 20, 0xff0000, 0x0000ff);
 
 	// Append a MACD(26, 12) indicator chart (75 pixels high) after the main chart, using 9 days for
 	// computing divergence.
-	c->addMACD(75, 26, 12, 9, 0x0000ff, 0xff00ff, 0x008000);
+	//c->addMACD(75, 26, 12, 9, 0x0000ff, 0xff00ff, 0x008000);
 
 	// Include track line with legend for the latest data values
-	trackFinance(c, ((XYChart *)c->getChart(0))->getPlotArea()->getRightX());
+	//trackFinance(c, ((XYChart *)c->getChart(0))->getPlotArea()->getRightX());
 
 	// Assign the chart to the WinChartViewer
+	//viewer->setChart(c);
+	delete viewer->getChart();
 	viewer->setChart(c);
 }
 
@@ -600,8 +709,8 @@ void CChartView::trackFinance(MultiChart *m, int mouseX)
                         double change = closeValue - lastCloseValue;
                         double percent = change * 100 / closeValue;
                         string symbol = (change >= 0) ?
-                            "<*font,color=008800*><*img=@triangle,width=8,color=008800*>" :
-                            "<*font,color=CC0000*><*img=@invertedtriangle,width=8,color=CC0000*>";
+                            "<*font,color=cc0000*><*img=@triangle,width=8,color=cc0000*>" :
+                            "<*font,color=0000ff*><*img=@invertedtriangle,width=8,color=0000ff*>";
 
                         ohlcLegend << "  " << symbol << " " << c->formatValue(change, "{value|P4}");
 						ohlcLegend << " (" << c->formatValue(percent, "{value|2}") << "%)<*/font*>";
@@ -710,4 +819,20 @@ void CChartView::OnMouseMovePlotArea()
 {
 	trackFinance((MultiChart *)m_ChartViewer.getChart(), m_ChartViewer.getPlotAreaMouseX());
 	m_ChartViewer.updateDisplay();
+}
+
+void CChartView::SendSearch(void)
+{
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strRQName = _T("주식일봉차트조회요청");
+	theApp.m_khOpenApi.SetInputValue(L"종목코드"	, pMain->m_boardJongmokCode);
+	CString t = COleDateTime::GetCurrentTime().Format(L"%Y%m%d");
+	//비밀번호 = 사용안함(공백)
+	theApp.m_khOpenApi.SetInputValue(L"기준일자"	, t);
+
+	//비밀번호입력매체구분 = 00
+	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"0");
+
+	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10081",0,m_strScrNo);
+	theApp.IsError(ret);
 }

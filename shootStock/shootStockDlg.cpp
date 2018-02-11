@@ -754,6 +754,13 @@ void CshootStockDlg::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQNam
 
 			}
 			break;
+		case 5:
+			{
+
+				((CChartView *)pWnd)->OnReceiveTrDataKhopenapictrl(sScrNo, sRQName, sTrcode, sRecordName, sPrevNext, nDataLength, sErrorCode, sMessage, sSplmMsg);
+
+			}
+			break;
 		}
 	}
 }
@@ -1058,6 +1065,12 @@ void CshootStockDlg::OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTST
 				{
 
 					((CDailyReport *)pWnd)->OnReceiveRealDataKhopenapictrl(sJongmokCode, sRealType, sRealData);
+				}
+				break;
+			case 5:		// µî¶ô·ü
+				{
+
+					((CChartView *)pWnd)->OnReceiveRealDataKhopenapictrl(sJongmokCode, sRealType, sRealData);
 				}
 				break;
 			}

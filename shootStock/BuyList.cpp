@@ -922,4 +922,5 @@ void CBuyList::OnBnClickedButtonChatview()
 	pChartView->Create(IDD_DIALOG_CHART);
 
 	pMain->m_mapScreen.SetAt(pChartView->m_strScrNo, pChartView);
+	pChartView->SendSearch();
 }

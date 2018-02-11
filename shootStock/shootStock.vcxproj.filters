@@ -22,6 +22,9 @@
     <Filter Include="CIni">
       <UniqueIdentifier>{03886674-232f-4666-86dc-8eb03188bc01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sqlite">
+      <UniqueIdentifier>{12ef9c75-4a9a-46d1-bf1a-2d411d8d95a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -99,6 +102,9 @@
     <ClInclude Include="ChartViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sqlite3\sqlite3.h">
+      <Filter>sqlite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shootStock.cpp">
@@ -142,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="ChartViewer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite3\sqlite3.c">
+      <Filter>sqlite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

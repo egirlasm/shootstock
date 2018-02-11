@@ -6,6 +6,7 @@
 #include "TopPrice.h"
 #include "afxdialogex.h"
 #include "shootStockDlg.h"
+#include "sqlite3/sqlite3.h"
 
 const stGRID lstOPT10027[] = 
 {
@@ -29,7 +30,7 @@ IMPLEMENT_DYNAMIC(CTopPrice, CDialogEx)
 CTopPrice::CTopPrice(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTopPrice::IDD, pParent)
 {
-
+	
 }
 
 CTopPrice::~CTopPrice()
@@ -104,6 +105,8 @@ void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LP
 		strRQName = _T("전일대비등락률상위");
 		arrData.RemoveAll();
 		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);
+		m_ArrTopdata = new TopData[nCnt];
+		m_ArrCount = nCnt;
 		for (i = 0; i < nCnt; i++)
 		{
 			arrData.RemoveAll();
@@ -113,11 +116,13 @@ void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LP
 				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstOPT10027[j].strKey);	strData.Trim();
 				//m_grdKwanSim.SetItemFormat(i + 1, lstOPTKWFID[j].nCol, lstOPTKWFID[j].nAlign);
 				arrData.Add(strData);
+				
 				//종목코드 추가
 				if(j == 1){
 					CString strCode = strData, strIndex;
 					strIndex.Format(L"%d", i);
 					m_mapJongCode.SetAt(strCode, strIndex);
+					m_ArrTopdata[i].strCode = strData;
 				}
 			}
 			if(!arrData.GetAt(1).IsEmpty()){
@@ -128,6 +133,8 @@ void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LP
 				m_TopList.SetItem(dwitem,1,1,arrData.GetAt(2),0,0,0,0);
 				m_TopList.SetItem(dwitem,2,1,arrData.GetAt(3),0,0,0,0);
 				m_TopList.SetItem(dwitem,3,1,arrData.GetAt(6),0,0,0,0);
+
+				m_ArrTopdata[i].strRate = arrData.GetAt(6);
 
 				m_TopList.SetItem(dwitem,4,1,arrData.GetAt(9),0,0,0,0);
 				m_TopList.SetItem(dwitem,5,1,arrData.GetAt(11),0,0,0,0);
@@ -369,6 +376,7 @@ void CTopPrice::OnBnClickedButtonPrev()
 {
 	// TODO: Add your control notification handler code here
 	//m_DateCtrl
+	BackupToSqlite();
 }
 
 
@@ -376,4 +384,62 @@ void CTopPrice::OnBnClickedButtonNext()
 {
 	// TODO: Add your control notification handler code here
 
+}
+int print_result(void* data, int n_columns, char** column_values, char** column_names)
+{
+	//if (!column_names_printed) {
+	//print_row(n_columns, column_names);
+	//column_names_printed = 1;
+	//}
+
+	//print_row(n_columns, column_values);
+
+	return 0;
+}
+
+void CTopPrice::BackupToSqlite(void)
+{
+	sqlite3* db = NULL;
+	char* errMsg = NULL;
+
+	char** dbResult;
+	int rows;
+	int columns;
+
+	int sqlResult = sqlite3_open("data.db", &db);
+	if (sqlResult == SQLITE_OK)
+	{
+		
+		__try{
+			char * szSql = new char[MAX_PATH];
+
+			for (int i =0 ;i < m_ArrCount; i++)
+			{
+				
+				sprintf_s(szSql, MAX_PATH, "INSERT INTO topstock (id,t_time,t_code,p_rate) VALUES (NULL,'%s','%s') ",m_ArrTopdata[i].strCode,m_ArrTopdata[i].strRate);
+				/*_TraceA(szSql);*/
+				sqlResult = sqlite3_exec(db, szSql, print_result, NULL, &errMsg);
+				//sqlResult = sqlite3_exec(db, "SELECT * FROM sysid INNER JOIN softpaq ON sysid.softpaqnumber = softpaq.softpaqnumber INNER JOIN os ON sysid.softpaqnumber = os.softpaqnumber WHERE sysid.sysid = '225A' AND softpaq.type = 'Application' group by softpaq.softpaqnumber", print_result, NULL, &errMsg);
+				if (sqlResult == SQLITE_OK){
+					//MessageBox(NULL, L"alskdjfas", L"lsakdfj", MB_OK);
+					//_TraceA("SQLITE_OK Devices.db");
+					//SortSqlData();
+					
+				}
+				else{
+					//_TraceA(errMsg);
+					CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+					pMain->TraceOutputA(errMsg);
+				}
+			}
+
+
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER){
+			//_TraceA("sqlite failed");
+		}
+
+	}
+
+	sqlite3_close(db);
 }
