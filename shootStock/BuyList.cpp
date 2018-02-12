@@ -13,18 +13,19 @@ const CString m_strRealSet = L"주식시세;주식체결";
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
 const stGRID lstOPTKWFID[] = 
 {
-	{L"종목코드",		L"-1",	-1,	0,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"종목명",			L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"현재가",			L"0",	-1,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+
+	{L"종목코드",		L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"종목명",			L"-1",	-1,	2,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"현재가",			L"0",	-1,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
 	{L"전일대비기호",	L"10",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
-	{L"등락율",			L"2",	-1,	3,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
-	{L"거래량",			L"5",	-1,	4,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"시가",			L"16",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"고가",			L"17",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"저가",			L"18",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"종가",			L"18",	-1,8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수호가",			L"18",	-1,	9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매도호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"등락율",			L"2",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
+	{L"거래량",			L"5",	-1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"시가",			L"16",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"고가",			L"17",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"저가",			L"18",	-1,	8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종가",			L"18",	-1,9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매수호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매도호가",			L"18",	-1,	11,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	/*{L"매수호가",		L"0",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	{L"전일거래량대비",	L"13",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
 };
@@ -32,18 +33,18 @@ const stGRID lstOPTKWFID[] =
 // 실시간 주문체결(현재가 표시용)
 const stGRID lstOPTKWFID_B[] = 
 {
-	{L"종목코드",		L"-1",	-1,	0,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"종목명",			L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"현재가",			L"10",	-1,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"전일대비기호",	L"25",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
-	{L"등락율",			L"12",	-1,	3,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
-	{L"거래량",			L"13",	-1,	4,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"시가",			L"16",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"고가",			L"17",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"저가",			L"18",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"종가",			L"18",	-1,8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수호가",			L"18",	-1,	9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매도호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종목코드",		L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"종목명",			L"-1",	-1,	2,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"현재가",			L"0",	-1,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"전일대비기호",	L"10",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
+	{L"등락율",			L"2",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
+	{L"거래량",			L"5",	-1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"시가",			L"16",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"고가",			L"17",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"저가",			L"18",	-1,	8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종가",			L"18",	-1,9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매수호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매도호가",			L"18",	-1,	11,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	/*{L"전일대비",		L"11",	-1,	-1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
 	{L"전일거래량대비",	L"30",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
 };
@@ -144,6 +145,7 @@ BEGIN_MESSAGE_MAP(CBuyList, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBuyList::OnBnClickedButtonTest)
 	ON_NOTIFY(NM_CLICK, IDC_LIST1, &CBuyList::OnNMClickList)
 	ON_BN_CLICKED(IDC_BUTTON_CHATVIEW, &CBuyList::OnBnClickedButtonChatview)
+	ON_BN_CLICKED(IDC_BUTTON_ALL_CANCEL, &CBuyList::OnBnClickedButtonAllCancel)
 END_MESSAGE_MAP()
 
 
@@ -166,19 +168,20 @@ void CBuyList::InitList(void)
 	m_ListBox.SetExtendedStyle(LVS_EX_FULLROWSELECT |LVS_EX_DOUBLEBUFFER );
 	m_ListBox.ModifyStyle(0,LVS_SINGLESEL); 
 	m_ListBox.SetGridLines();
-	m_ListBox.InsertColumn(0,L"코드",0,50);
-	m_ListBox.InsertColumn(1,L"종목명",0,80);
-	m_ListBox.InsertColumn(2,L"현재가",0,70);
+	m_ListBox.InsertColumn(0,L"#",0,50);
+	m_ListBox.InsertColumn(1,L"코드",0,50);
+	m_ListBox.InsertColumn(2,L"종목명",0,80);
+	m_ListBox.InsertColumn(3,L"현재가",0,70);
 	//m_ListBox.InsertColumn(3,L"",0,100);
 
-	m_ListBox.InsertColumn(3,L"등락률",0,80);
-	m_ListBox.InsertColumn(4,L"거래량",0,80);
-	m_ListBox.InsertColumn(5,L"시가",0,80);
-	m_ListBox.InsertColumn(6,L"고가",0,80);
-	m_ListBox.InsertColumn(7,L"저가",0,80);
-	m_ListBox.InsertColumn(8,L"종가",0,80);
-	m_ListBox.InsertColumn(9,L"매수호가",0,80);
-	m_ListBox.InsertColumn(10,L"매도호가",0,80);
+	m_ListBox.InsertColumn(4,L"등락률",0,80);
+	m_ListBox.InsertColumn(5,L"거래량",0,80);
+	m_ListBox.InsertColumn(6,L"시가",0,80);
+	m_ListBox.InsertColumn(7,L"고가",0,80);
+	m_ListBox.InsertColumn(8,L"저가",0,80);
+	m_ListBox.InsertColumn(9,L"종가",0,80);
+	m_ListBox.InsertColumn(10,L"매수호가",0,80);
+	m_ListBox.InsertColumn(11,L"매도호가",0,80);
 }
 
 
@@ -248,9 +251,12 @@ void CBuyList::GetDataSearch(void)
 		//m_grdKwanSim.SetItemText(i, 0, strCode);
 		int dwCount = m_ListBox.GetItemCount();
 
-		int dwitem = m_ListBox.InsertItem(dwCount,strCode,0);
-
-// 		m_ListBox.SetItem(dwitem,1,1,usrMgr->strData1,0,0,0,0);
+		CString strConstruction =  theApp.m_khOpenApi.GetMasterConstruction(strCode);
+		CString strState =  theApp.m_khOpenApi.GetMasterStockState(strCode);
+		CString strStatus = strConstruction + L"|"  + strState;
+		int dwitem = m_ListBox.InsertItem(dwCount,strStatus,0);
+		
+ 		m_ListBox.SetItem(dwitem,1,1,strCode,0,0,0,0);
 // 		m_ListBox.SetItem(dwitem,2,1,usrMgr->strData2,0,0,0,0);
 // 		m_ListBox.SetItem(dwitem,3,1,usrMgr->strData3,0,0,0,0);
 // 		m_ListBox.SetItem(dwitem,4,1,usrMgr->strData4,0,0,0,0);
@@ -404,19 +410,22 @@ void CBuyList::OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRea
 	CStringArray arrData;
 	if (!lstrcmp(sRealType, L"주식시세"))		// 주식시세
 	{
-		//arrData.Add(sJongmokCode);
-		//int i, nFieldCnt = sizeof(lstOPTKWFID) / sizeof(*lstOPTKWFID);		// 전체크기 / 원소크기 = 원소개수
-		//for (i = 1; i < nFieldCnt; i++)
-		//{
-		//	if (_wtoi(lstOPTKWFID[i].strRealKey) < 0)
-		//	{
-		//		arrData.Add(L"");
-		//		continue;
-		//	}
-		//	strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, _wtoi(lstOPTKWFID[i].strRealKey));	strData.Trim();
-		//	arrData.Add(strData);
-		//}
+		arrData.Add(sJongmokCode);
+
+		int i, nFieldCnt = sizeof(lstOPTKWFID_B) / sizeof(*lstOPTKWFID_B);		// 전체크기 / 원소크기 = 원소개수
+		for (i = 1; i < nFieldCnt; i++)
+		{
+			if (_wtoi(lstOPTKWFID_B[i].strRealKey) < 0)
+			{
+				arrData.Add(L"");
+				continue;
+			}
+
+			strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, _wtoi(lstOPTKWFID_B[i].strRealKey));	strData.Trim();
+			arrData.Add(strData);
+		}
 		//SetDataKwanSimGrid(arrData, sRealType);
+		OnUpdateListData(arrData,sRealType);
 	}
 	else if (!lstrcmp(sRealType, L"주식체결"))	// 주식체결
 	{
@@ -799,10 +808,18 @@ void CBuyList::OnBnClickedOrder1()
 	long lRet;
 	nowPrice.Replace(L",",L"");
 	int buyCount = theApp.g_MyMoney / _wtoi(nowPrice) -1;
-	pMain->m_boughtCount = buyCount;
+	//pMain->m_boughtCount = buyCount;
+
+
+
+	//pMain->m_checkedSubject.SetAt(strJongCode,)
+
 	CString fmt;
 	fmt.Format(L"주식종목 %s ,주식가능수 %d, 주식 현재가 %s",strJongCode,buyCount,nowPrice);
 	pMain->TraceOutputW(fmt);
+	CSubject * subject =new CSubject;
+	subject->set_total(buyCount);
+	pMain->m_checkedSubject.SetAt(strJongCode,subject);
 	lRet = theApp.m_khOpenApi.SendOrder(strRQName, pMain->m_strScrNo,pMain->m_AccNo, 1, strJongCode, buyCount, 0, L"03", L"");
 }
 
@@ -923,4 +940,29 @@ void CBuyList::OnBnClickedButtonChatview()
 
 	pMain->m_mapScreen.SetAt(pChartView->m_strScrNo, pChartView);
 	pChartView->SendSearch();
+}
+
+
+void CBuyList::OnBnClickedButtonAllCancel()
+{
+	// TODO: Add your control notification handler code here
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+
+	CString strRQName = _T("주식주문");
+
+	int nCount = pMain->m_mapOrderNo.GetSize();
+
+	CString strOrderNo = L"";
+	CString strKey, strScrType;
+	POSITION pos =  pMain->m_mapOrderNo.GetStartPosition();
+	while (pos != NULL)
+	{
+		strOrderNo= L"";
+		pMain->m_mapOrderNo.GetNextAssoc(pos, strKey, strScrType);
+		if (pMain->m_mapOrderNo.Lookup(strKey, strOrderNo))
+		{
+			theApp.m_khOpenApi.SendOrder(strRQName,pMain->m_strScrNo, pMain->m_AccNo, 4, strKey, 0, 0, L"00",strOrderNo);
+			pMain->isManual = true;
+		}
+	}
 }

@@ -217,10 +217,11 @@ CshootStockDlg::CshootStockDlg(CWnd* pParent /*=NULL*/)
 	, m_sellPercentage(1.5)
 	, m_FuckPercentage(0)
 	, isRunning(false)
-	, m_boughtPrice(0)
-	, m_checkedCount(0)
-	, m_checkedCode(_T(""))
-	, m_boughtCount(0)
+	//, m_boughtPrice(0)
+	//, m_checkedCount(0)
+	//, m_checkedCode(_T(""))
+	//, m_boughtCount(0)
+	, isManual(false)
 {
 	m_nRet = 0;
 	m_nScrN0 = 0;
@@ -241,6 +242,7 @@ void CshootStockDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_STATIC_CODE, m_staticCode);
 	DDX_Text(pDX, IDC_STATIC_NAME, m_staticName);
 	DDX_Text(pDX, IDC_STATIC_PRICE, m_staticPrice);
+	DDX_Control(pDX, IDC_CONCLUDE_LIST, m_ConcludeList);
 }
 
 BEGIN_MESSAGE_MAP(CshootStockDlg, CDialogEx)
@@ -254,6 +256,13 @@ BEGIN_MESSAGE_MAP(CshootStockDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
+IMPLEMENT_SERIAL(CSubject, CObject, VERSIONABLE_SCHEMA | 2)
+void CSubject::Serialize(CArchive& ar){
+
+}
+void CSubject::AssertValid() const{
+
+}
 // CshootStockDlg 메시지 처리기
 
 BOOL CshootStockDlg::OnInitDialog()
@@ -290,6 +299,7 @@ BOOL CshootStockDlg::OnInitDialog()
 	InitlogList();
 	InitTabControl();
 	InitDealList();
+	InitConcludeList();
 	theApp.m_khOpenApi.CommConnect();
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -354,7 +364,56 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 		TraceOutputW(fmt);
 	}
 
+	if (strRQName == _T("실시간미체결요청"))		// 주식기본정보 설정
+	{
+		m_ConcludeList.DeleteAllItems();
+		CString strData;
+		int nFieldCnt = 25;//sizeof(lstFID) / sizeof(*lstFID);		// 전체크기 / 원소크기 = 원소개수
 
+		strRQName = _T("실시간미체결");
+		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);	//데이터 건수
+		m_nCount = nCnt;	//데이터 건수에 그리드 헤더 추가
+		CString strIndex= L"";
+		for (i = 0; i < nCnt; i++)
+		{
+
+			strIndex.Format(L"%d", i);
+
+			int dwitem = 0;
+			int dwCount = m_dealList.GetItemCount();
+
+
+
+
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"주문번호");strData.Trim();
+			CString tmpOrderNo = strData;
+
+			dwitem = m_ConcludeList.InsertItem(dwCount,strData,0);
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"종목코드");strData.Trim();
+			CString tmpCode = strData;
+			m_ConcludeList.SetItemText(i,1,strData );
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"종목명");strData.Trim();
+			m_ConcludeList.SetItemText(i,2,strData );
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"주문구분");strData.Trim();
+			m_ConcludeList.SetItemText(i,3,strData );
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"주문가격");strData.Trim();
+			m_ConcludeList.SetItemText(i,4,_wtoi(strData) );
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"미체결수량");strData.Trim();
+			m_ConcludeList.SetItemText(i,5,_wtoi(strData) );
+
+			// 잔고 리스트에 넣어 일관매도 할때 빨리 함
+			m_mapOrderNo.SetAt(tmpCode,tmpOrderNo);
+
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"매매구분");strData.Trim();
+			m_ConcludeList.SetItemText(i,6,strData );
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"현재가");strData.Trim();
+			m_ConcludeList.SetItemText(i,7,_wtoi(strData) );
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"시간");strData.Trim();
+			strData.Format(L"%s:%s:%s",strData.Mid(0,2),strData.Mid(2,2),strData.Mid(4,2));
+			m_ConcludeList.SetItemText(i,8,strData );
+		}
+
+	}
 
 
 	//증거금세부내역조회요청
@@ -628,7 +687,7 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 // 	{L"현재가",				L"11",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
 	if (strRQName == _T("계좌평가잔고내역요청"))			// 계좌수익률//if (!lstrcmp(sRealType, L"주식체결"))	// 주식체결
 	{
-		
+		//m_checkedSubject.RemoveAll();
 		CString strData;
 		int nFieldCnt = 22;//sizeof(lstFID) / sizeof(*lstFID);		// 전체크기 / 원소크기 = 원소개수
 
@@ -646,6 +705,7 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"종목번호");strData.Trim();
 			m_mapJongCode.SetAt(strData.Mid(1,6), strIndex);
 
+			CString tmpJomgmok = strData.Mid(1,6);
 			//m_grdKwanSim.SetRowHeight(i, 20);		// 행의 높이 설정
 			//m_grdKwanSim.SetItemText(i, 0, strCode);
 			int dwCount = m_dealList.GetItemCount();
@@ -659,8 +719,27 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 			m_dealList.SetItemText(i,3,_wtof(strData) );
 			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"매입가");strData.Trim();
 			m_dealList.SetItemText(i,4,_wtoi(strData) );
+
+			int nBuyPrice = _wtoi(strData);
+
 			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"보유수량");strData.Trim();
 			m_dealList.SetItemText(i,5,_wtoi(strData) );
+
+			// 잔고 리스트에 넣어 일관매도 할때 빨리 함
+			m_OrderList.SetAt(tmpJomgmok,strData);
+
+			CSubject * subject = new CSubject(nBuyPrice);
+			subject->set_count(_wtoi(strData));
+			subject->set_status(false);
+			
+		/*	subject->set_price(nBuyPrice);*/
+
+			/************************************************************************/
+			/*                                                                            */
+			/************************************************************************/
+			isRunning = true; //프로그램이 시작되면  현재 거래중인 종목이 있으면 바로 손절 감시 작동 
+			m_checkedSubject.SetAt(tmpJomgmok,subject);
+
 			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"현재가");strData.Trim();
 			m_dealList.SetItemText(i,6,_wtoi(strData) );
 			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, L"수수료합");strData.Trim();
@@ -682,6 +761,8 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 			//종목코드 = 전문 조회할 종목코드
 			theApp.m_khOpenApi.SetInputValue(L"종목코드"	,  strCode);
 			theApp.m_khOpenApi.CommRqData( L"주식기본정보요청",  L"OPT10001", 0, m_strScrNo); 
+			//
+			
 		}
 
 		long lRet = theApp.m_khOpenApi.CommKwRqData(strCodeList, 0, nCodeCount, 0, strRQName, m_strScrNo);
@@ -851,20 +932,25 @@ void CshootStockDlg::MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LP
 
 		if(isRunning){ //손절 판단 
 			CshootStockDlg* pMain =  (CshootStockDlg*)AfxGetApp()->GetMainWnd();
-			if(pMain->m_checkedCode == sJongmokCode){
+			CSubject *subject = new CSubject();
+			if(pMain->m_checkedSubject.Lookup(sJongmokCode,(CObject*&)subject) && !subject->get_status()){
+				
 				strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, 10);	strData.Trim(); //현재가
 				int nPrice = _wtoi(strData);
-				if(nPrice < m_boughtPrice){
-					int nTemp = m_boughtPrice - nPrice;
-					double nPercentage = (double)nTemp / (double)m_boughtPrice;
-					if(nPercentage > 0.03){ // 3%이상이면 손절
+				int nTmpBoughtPrice  = subject->get_price();
+				if(nPrice < nTmpBoughtPrice){
+					int nTemp = nTmpBoughtPrice - nPrice;
+					double nPercentage = (double)nTemp / (double)nTmpBoughtPrice * 100;
+					if(nPercentage > 1.5){ // 3%이상이면 손절
 						
 						CString strOrderNo;
-						if (m_mapJongCode.Lookup(sJongmokCode, strOrderNo))
+						if (m_mapOrderNo.Lookup(sJongmokCode, strOrderNo))
 						{
 							CString strRQName = _T("주식주문"); //일단 매도 취소
-							LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 4, sJongmokCode,m_checkedCount, 0, L"00",strOrderNo);
-							pMain->m_checkedCode = L"";
+							LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 4, sJongmokCode,subject->get_count(), 0, L"00",strOrderNo);
+							subject->set_status(true);
+							m_checkedSubject.SetAt(sJongmokCode,subject);
+							//pMain->m_checkedCode = L"";
 						}
 
 					}
@@ -1127,6 +1213,29 @@ void CshootStockDlg::MainOnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCT
 		
 			strData = theApp.m_khOpenApi.GetChejanData( 905);	strData.Trim(); //매도수구분  매도  매수 이건 문자로
 			TraceOutputW(strData + L"접수 되였씁니다");
+			//if(strData = _T("-매도")){
+			//	
+
+			//	
+
+			//	theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+			//	//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+			//	//SetInputValue("체결구분"	,  "1");
+			//	theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+			//	//매매구분 = 0:전체, 1:매도, 2:매수
+			//	//SetInputValue("매매구분"	,  "");
+			//	theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+			//	LONG lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+			//	if (!theApp.IsError(lRet))
+			//	{
+			//	}
+
+			//}
+
+
+
 			//주문접수일수도 있다 주문취소일수도 있고
 		}else if(orderStatus == L"확인"){
 			//TraceOutputW(L"주문취소가 확인 되였씁니다");
@@ -1139,11 +1248,29 @@ void CshootStockDlg::MainOnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCT
 
 			CString sJongmokCode =  theApp.m_khOpenApi.GetChejanData(9001); //913 주문코드
 			sJongmokCode =  sJongmokCode.Mid(1,6);
-				if(m_checkedCode == sJongmokCode){
-					CString strRQName = _T("주식주문"); //일단 매도 취소
-					LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 2, sJongmokCode,m_checkedCount, 0, L"03",L"");
-					m_checkedCode = L"";
-				}
+			CSubject *subject = new CSubject;
+			if(m_checkedSubject.Lookup(sJongmokCode,(CObject*&)subject) && !isManual){ //지정가로 걸어논 매도가 취소되면 시장가로 팔기
+				CString strRQName = _T("주식주문"); //시장가로 팔기  손절
+				LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 2, sJongmokCode,subject->get_count(), 0, L"03",L"");
+				//m_checkedSubject.RemoveKey(sJongmokCode);
+
+			}
+			/// 매도가 취소 됬으니 미체결 다시 받아오기  그러니 까 현재 리스트에서 지워져야지
+			theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+			//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+			//SetInputValue("체결구분"	,  "1");
+			theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+			//매매구분 = 0:전체, 1:매도, 2:매수
+			//SetInputValue("매매구분"	,  "");
+			theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+			LONG lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+			if (!theApp.IsError(lRet))
+			{
+			}
+			isManual = false;
+
 		}else if(orderStatus == L"체결"){
 			//TraceOutputW(L"체결되였습니다");
 			CString sJongmokCode =  theApp.m_khOpenApi.GetChejanData(9001); //913 주문코드
@@ -1163,48 +1290,156 @@ void CshootStockDlg::MainOnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCT
 
 
 			TraceOutputW(fmt);
+
+			int nPrice = _wtoi(strPrice);
+			CSubject * subject = new CSubject(nPrice);
 			if(strData == L"2"){
 				isRunning = true;
-				int nPrice = _wtoi(strPrice); //최종 체결된 매수가로 지정매도 걸어놔도 괜찮을듯
-				m_boughtPrice = nPrice;
-				m_checkedCount += _wtoi(strCount); //체결된 수량 매번 더해주기  절반씩 체결될떄가 있으니깐
-				if(m_checkedCount == m_boughtCount){ //매수주문이 전부 체결이 된후에 매도주문을 건다 아니면 자꾸이상하게 부분만 지정매도가 됨
-					m_checkedCode = sJongmokCode; //체결된 종목
-					//1000 아래는 1 씩 계산하니깐 pass 그 이상은 10 단위로 ,더 이상은 50단위로 ,더 이상은 100단위로
-					nPrice = nPrice + nPrice * m_sellPercentage /100;
-					if(nPrice < 10000 && nPrice > 1000){
-						nPrice = nPrice - nPrice % 10 + 10;
-					}else if(nPrice < 100000 && nPrice > 10000){
-						nPrice = nPrice - nPrice % 50 + 50;
-					}else if(nPrice < 1000000 && nPrice > 100000){
-						nPrice = nPrice - nPrice % 100 + 100;
+				 //최종 체결된 매수가로 지정매도 걸어놔도 괜찮을듯
+				//m_boughtPrice = nPrice;
+				//m_checkedCount += _wtoi(strCount); //체결된 수량 매번 더해주기  절반씩 체결될떄가 있으니깐
+				//CString tmpCount = L"";
+				//if(m_checkedData.Lookup(sJongmokCode,tmpCount)){
+				//	int nTmpCount = _wtoi(tmpCount);
+				//	nTmpCount += _wtoi(strCount);
+				//	tmpCount.Format(L"%d",nTmpCount);
+				//	m_checkedData.SetAt(sJongmokCode,tmpCount);
+				//}else
+				//	m_checkedData.SetAt(sJongmokCode,strCount);
+				
+				
+				//m_checkedSubject.SetAt(sJongmokCode,my);
+				if(m_checkedSubject.Lookup(sJongmokCode,(CObject*&)subject)){
+					int nTempCount = _wtoi(strCount);
+					//int orgCount = subject->get_count();
+					subject->set_count(nTempCount);
+					
+
+					if(subject->is_checked_all()){ //매수주문이 전부 체결이 된후에 매도주문을 건다 아니면 자꾸이상하게 부분만 지정매도가 됨
+						//m_checkedCode = sJongmokCode; //체결된 종목
+						//m_checkedData.SetAt(sJongmokCode,)
+						subject->set_price(nPrice);
+						//1000 아래는 1 씩 계산하니깐 pass 그 이상은 10 단위로 ,더 이상은 50단위로 ,더 이상은 100단위로
+						nPrice = nPrice + nPrice * m_sellPercentage /100;
+						if(nPrice < 10000 && nPrice > 1000){
+							nPrice = nPrice - nPrice % 10 + 10;
+						}else if(nPrice < 100000 && nPrice > 10000){
+							nPrice = nPrice - nPrice % 50 + 50;
+						}else if(nPrice < 1000000 && nPrice > 100000){
+							nPrice = nPrice - nPrice % 100 + 100;
+						}
+						//int sellPrice = nPrice + nPrice * m_sellPercentage /100;
+						fmt.Format(L"설정된 매도 퍼센트 %d%% 즉 매도가격 = %d",m_sellPercentage,nPrice);
+						TraceOutputW(fmt);
+						CString strRQName = _T("주식주문");
+						LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 2, sJongmokCode,subject->get_count(), nPrice, L"00", L"");
+						TraceOutputW(L"지정가 주문완료 감시기기 작동 시작.");
+						subject->set_status(false);
+						m_checkedSubject.SetAt(sJongmokCode,subject);
+
+
+						theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+						lRet = theApp.m_khOpenApi.CommRqData(L"계좌평가잔고내역요청", L"OPW00018", 0, m_strScrNo);
+						if (!theApp.IsError(lRet))
+						{
+						}
+						//Sleep(1000);
+						// 매도가 취소 됬으니 미체결 다시 받아오기  그러니 까 현재 리스트에서 지워져야지
+						theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+						//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+						//SetInputValue("체결구분"	,  "1");
+						theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+						//매매구분 = 0:전체, 1:매도, 2:매수
+						//SetInputValue("매매구분"	,  "");
+						theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+						lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+						if (!theApp.IsError(lRet))
+						{
+						}
+
+					}else
+					{
+						m_checkedSubject.SetAt(sJongmokCode,subject);
 					}
-					//int sellPrice = nPrice + nPrice * m_sellPercentage /100;
-					fmt.Format(L"설정된 매도 퍼센트 %d%% 즉 매도가격 = %d",m_sellPercentage,nPrice);
-					TraceOutputW(fmt);
-					CString strRQName = _T("주식주문");
-					LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 2, sJongmokCode, _wtoi(strCount), nPrice, L"00", L"");
-					TraceOutputW(L"지정가 주문완료 감시기기 작동 시작.");
+
+				}else{
+					subject->set_count(_wtoi(strCount));
+					m_checkedSubject.SetAt(sJongmokCode,subject);
 				}
+
+
 				
 
 
 
 			}else{
 				isRunning = false;
-				TraceOutputW(L"주식 다팔려서 감시기기 작동 멈춤.");
+				
+
+				if(m_checkedSubject.Lookup(sJongmokCode,(CObject*&)subject)){
+					int nTempCount = _wtoi(strCount);
+					if(subject->get_count() == nTempCount){
+						TraceOutputW(L"주식 다팔려서 감시기기 작동 멈춤.");
+
+						m_checkedSubject.RemoveKey(sJongmokCode);
+						m_dealList.DeleteAllItems();
+						theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+						long lRet = theApp.m_khOpenApi.CommRqData(L"계좌평가잔고내역요청", L"OPW00018", 0, m_strScrNo);
+						if (!theApp.IsError(lRet))
+						{
+						}
+
+
+						theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+						//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+						//SetInputValue("체결구분"	,  "1");
+						theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+						//매매구분 = 0:전체, 1:매도, 2:매수
+						//SetInputValue("매매구분"	,  "");
+						theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+						lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+						if (!theApp.IsError(lRet))
+						{
+						}
+
+					}
+					
+				}
+
+
+
 			}
-			m_dealList.DeleteAllItems();
-			theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
-			long lRet = theApp.m_khOpenApi.CommRqData(L"계좌평가잔고내역요청", L"OPW00018", 0, m_strScrNo);
-			if (!theApp.IsError(lRet))
-			{
-			}
+
+
+			/// 매도가 취소 됬으니 미체결 다시 받아오기  그러니 까 현재 리스트에서 지워져야지
+			//theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+			////체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+			////SetInputValue("체결구분"	,  "1");
+			//theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+			////매매구분 = 0:전체, 1:매도, 2:매수
+			////SetInputValue("매매구분"	,  "");
+			//theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+			//lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+			//if (!theApp.IsError(lRet))
+			//{
+			//}
 		}
 	}else if(strGuBun == L"1"){// 잔고통보
-		TraceOutputW(L"잔고통보");
-		CString orderStatus =  theApp.m_khOpenApi.GetChejanData(913); //913 주문상태
-		TraceOutputW(orderStatus);
+		//TraceOutputW(L"잔고통보");
+		//CString orderStatus =  theApp.m_khOpenApi.GetChejanData(913); //913 주문상태
+		//TraceOutputW(orderStatus);
+		//CString nRemainedConcludeCount =  theApp.m_khOpenApi.GetChejanData(902); //미체결 남은
+		//TraceOutputW(nRemainedConcludeCount);
+
+		//nRemainedConcludeCount =  theApp.m_khOpenApi.GetChejanData(9001); //미체결 남은
+		//TraceOutputW(nRemainedConcludeCount);
+
 	}
 	
 	// 현재 계좌번호
@@ -1410,7 +1645,20 @@ void CshootStockDlg::OnEventConnect(LONG nItemCnt)
 		if (!theApp.IsError(lRet))
 		{
 		}
+		//계좌번호 = 전문 조회할 보유계좌번호
+		theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
 
+		//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+			//SetInputValue("체결구분"	,  "1");
+		theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+		//매매구분 = 0:전체, 1:매도, 2:매수
+			//SetInputValue("매매구분"	,  "");
+		theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+		lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+		if (!theApp.IsError(lRet))
+		{
+		}
 		//theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
 		// lRet = theApp.m_khOpenApi.CommRqData(L"계좌수익률", L"OPT10085", 0, m_strScrNo);
 		//if (!theApp.IsError(lRet))
@@ -1793,6 +2041,24 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
+void CshootStockDlg::InitConcludeList(void)
+{
+	m_ConcludeList.SetExtendedStyle(LVS_EX_FULLROWSELECT  | LVS_EX_DOUBLEBUFFER);
+	m_ConcludeList.ModifyStyle(0,LVS_SINGLESEL); 
+	m_ConcludeList.SetGridLines();
+	m_ConcludeList.InsertColumn(0,L"주문",0,70);
+	m_ConcludeList.InsertColumn(1,L"종목코드",0,70);
+	m_ConcludeList.InsertColumn(2,L"종목명",0,80);
+	m_ConcludeList.InsertColumn(3,L"주문구분",0,70);
+	//m_ListBox.InsertColumn(3,L"",0,100);
+
+	m_ConcludeList.InsertColumn(4,L"주문가격",0,60);
+	m_ConcludeList.InsertColumn(5,L"미체결수량",0,70);
+	m_ConcludeList.InsertColumn(6,L"매매구분",0,70);
+	m_ConcludeList.InsertColumn(7,L"현재가",0,70);
+	m_ConcludeList.InsertColumn(8,L"주문시간",0,70);
+
+}
 
 // 	{L"종목번호",			L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
 // 	{L"종목명",				L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
@@ -2002,3 +2268,5 @@ BOOL CshootStockDlg::PreTranslateMessage(MSG* pMsg)
 		return TRUE;
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
+
+

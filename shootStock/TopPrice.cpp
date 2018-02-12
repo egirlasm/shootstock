@@ -7,7 +7,8 @@
 #include "afxdialogex.h"
 #include "shootStockDlg.h"
 #include "sqlite3/sqlite3.h"
-
+#include <hash_set>
+#include "sha1.h"
 const stGRID lstOPT10027[] = 
 {
 	{L"종목분류",			L"-1",	-1,	0,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
@@ -29,6 +30,7 @@ IMPLEMENT_DYNAMIC(CTopPrice, CDialogEx)
 
 CTopPrice::CTopPrice(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTopPrice::IDD, pParent)
+	, m_curDate(_T(""))
 {
 	
 }
@@ -50,6 +52,7 @@ BEGIN_MESSAGE_MAP(CTopPrice, CDialogEx)
 	ON_COMMAND(ID_POPMENU_ADD, &CTopPrice::OnPopmenuAdd)
 	ON_BN_CLICKED(IDC_BUTTON_PREV, &CTopPrice::OnBnClickedButtonPrev)
 	ON_BN_CLICKED(IDC_BUTTON_NEXT, &CTopPrice::OnBnClickedButtonNext)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CTopPrice::OnBnClickedButtonSave)
 END_MESSAGE_MAP()
 
 
@@ -376,7 +379,7 @@ void CTopPrice::OnBnClickedButtonPrev()
 {
 	// TODO: Add your control notification handler code here
 	//m_DateCtrl
-	BackupToSqlite();
+	//BackupToSqlite();
 }
 
 
@@ -396,35 +399,69 @@ int print_result(void* data, int n_columns, char** column_values, char** column_
 
 	return 0;
 }
+#define A 54059 /* a prime */
+#define B 76963 /* another prime */
+#define C 86969 /* yet another prime */
+#define FIRSTH 37 /* also prime */
+unsigned hash_str(const char* s)
+{
+	unsigned h = FIRSTH;
+	while (*s) {
+		h = (h * A) ^ (s[0] * B);
+		s++;
+	}
+	return h; // or return h % C;
+}
+const char* getHash(TCHAR* param1,TCHAR* param2)
+{
+	USES_CONVERSION;
+	char* chart_curdate = W2A(param1);
+	char* char_strcode =  W2A(param2);
+	char szKey[MAX_PATH] = {0};
+	strcpy(szKey,chart_curdate);
+	strcat(szKey,char_strcode);
+	string szHash = sha256(szKey);
+	char * ret = new char[szHash.length()];
+	strcpy(ret,szHash.c_str());
+	return ret;
+}
+
 
 void CTopPrice::BackupToSqlite(void)
 {
+	CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	pMain->TraceOutputA("save to db....");
 	sqlite3* db = NULL;
 	char* errMsg = NULL;
 
 	char** dbResult;
 	int rows;
 	int columns;
+	int n = 0;
+	//CString strFileIniPath = QueryExePath() + _T("data.db");
 
-	int sqlResult = sqlite3_open("data.db", &db);
+	int sqlResult = sqlite3_open(m_szPath.c_str(), &db);
 	if (sqlResult == SQLITE_OK)
 	{
 		
 		__try{
+			
 			char * szSql = new char[MAX_PATH];
 
 			for (int i =0 ;i < m_ArrCount; i++)
 			{
-				
-				sprintf_s(szSql, MAX_PATH, "INSERT INTO topstock (id,t_time,t_code,p_rate) VALUES (NULL,'%s','%s') ",m_ArrTopdata[i].strCode,m_ArrTopdata[i].strRate);
+
+				const char* zsKey = getHash(m_curDate.GetBuffer(),m_ArrTopdata[i].strCode.GetBuffer());
+				sprintf_s(szSql, MAX_PATH, "INSERT INTO topstock (id,shakey,t_time,t_code,p_rate) VALUES (NULL,'%s','%ws','%ws','%ws') ",zsKey,m_curDate,m_ArrTopdata[i].strCode,m_ArrTopdata[i].strRate);
 				/*_TraceA(szSql);*/
+				//delete zsKey;
 				sqlResult = sqlite3_exec(db, szSql, print_result, NULL, &errMsg);
 				//sqlResult = sqlite3_exec(db, "SELECT * FROM sysid INNER JOIN softpaq ON sysid.softpaqnumber = softpaq.softpaqnumber INNER JOIN os ON sysid.softpaqnumber = os.softpaqnumber WHERE sysid.sysid = '225A' AND softpaq.type = 'Application' group by softpaq.softpaqnumber", print_result, NULL, &errMsg);
 				if (sqlResult == SQLITE_OK){
 					//MessageBox(NULL, L"alskdjfas", L"lsakdfj", MB_OK);
 					//_TraceA("SQLITE_OK Devices.db");
 					//SortSqlData();
-					
+					pMain->TraceOutputA("save ok....");
 				}
 				else{
 					//_TraceA(errMsg);
@@ -442,4 +479,21 @@ void CTopPrice::BackupToSqlite(void)
 	}
 
 	sqlite3_close(db);
+	pMain->TraceOutputA("save compolete");
 }
+
+
+void CTopPrice::OnBnClickedButtonSave()
+{
+	// TODO: Add your control notification handler code here
+	USES_CONVERSION;
+	CString strFileIniPath = QueryExePath() + _T("data.db");
+	
+	m_szPath = W2A(strFileIniPath);
+	CString t = COleDateTime::GetCurrentTime().Format(L"%Y%m%d");
+	m_curDate = t;
+	BackupToSqlite();
+}
+
+
+

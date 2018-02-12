@@ -45,4 +45,5 @@ public:
 	
 	afx_msg void OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedButtonChatview();
+	afx_msg void OnBnClickedButtonAllCancel();
 };

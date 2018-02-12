@@ -15,6 +15,52 @@
 
 #define WM_UPDATESTATUSBAR WM_USER + 255
 
+// Simple CObject-derived class for CObList and other examples
+class CSubject : public CObject
+{
+	DECLARE_SERIAL( CSubject )
+private:
+	int   m_count;
+	int	  m_price;
+	int   m_total;
+	bool  m_orderCacelled;
+public:
+	CSubject() { m_price = 0;m_orderCacelled = true; m_count= 0; }
+	CSubject(int nPrice) { m_price = nPrice;m_orderCacelled = true;  m_count= 0;}
+	CSubject(const CSubject& a) { m_price = a.m_price; m_orderCacelled = true; m_count= 0;} // Copy constructor
+	void Serialize(CArchive& ar);
+	void AssertValid() const;
+	int get_count(){return m_count;}
+	int get_price(){return m_price;}
+	void set_price(int nPrice){m_price = nPrice;}
+	void set_count(int nCount){ m_count = nCount;}
+	void set_total(int nCount){m_total = nCount;}
+	void set_status(bool st){m_orderCacelled = st;}
+	bool get_status(){return m_orderCacelled;}
+	bool is_checked_all(){return m_total == m_count;}
+	const CSubject& operator=(const CSubject& a)
+	{
+		m_price = a.m_price; return *this;
+	}
+	//const CSubject& operator=(int nCount){
+	//	m_count = nCount; return *this;
+	//}
+	BOOL operator==(CSubject a)
+	{
+		return m_price == a.m_price;
+	}
+	int operator+(int nCount){
+		return m_count+= nCount;
+	}
+
+#ifdef _DEBUG
+	void Dump(CDumpContext& dc) const
+	{
+		CObject::Dump(dc);
+		dc << m_price; 
+	}
+#endif
+};
 // CshootStockDlg 대화 상자
 class CshootStockDlg : public CDialogEx
 {
@@ -30,6 +76,7 @@ public:
 public:
 	CMapStringToPtr m_mapScreen;
 	CMapStringToString m_OrderList;
+	CMapStringToString m_ConcludeMapList;
 	CString							m_strScrNo;
 	CMapStringToString		m_mapJongCode;		// 리얼등록 종목
 	CMapStringToString		m_mapOrderNo;
@@ -109,9 +156,15 @@ public:
 	int m_FuckPercentage;
 	bool isRunning;
 	// 매수 체결가
-	int m_boughtPrice;
+	//int m_boughtPrice;
 	// 체결된 수량
-	int m_checkedCount;
-	CString m_checkedCode;
-	int m_boughtCount;
+	//int m_checkedCount;
+	//CString m_checkedCode;
+	//CMapStringToString m_checkedData;
+	CMapStringToOb m_checkedSubject;
+	//int m_boughtCount;
+	CReportCtrl m_ConcludeList;
+	void InitConcludeList(void);
+	// //수동으로 취고한건지 자동으로 취소 된건지
+	bool isManual;
 };

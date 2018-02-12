@@ -120,6 +120,7 @@
     <ClInclude Include="JongDlg.h" />
     <ClInclude Include="khopenapictrl.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="sha1.h" />
     <ClInclude Include="shootStock.h" />
     <ClInclude Include="shootStockDlg.h" />
     <ClInclude Include="sqlite3\sqlite3.h" />
@@ -138,6 +139,7 @@
     <ClCompile Include="DailyReport.cpp" />
     <ClCompile Include="JongDlg.cpp" />
     <ClCompile Include="khopenapictrl.cpp" />
+    <ClCompile Include="sha1.cpp" />
     <ClCompile Include="shootStock.cpp" />
     <ClCompile Include="shootStockDlg.cpp" />
     <ClCompile Include="sqlite3\sqlite3.c">

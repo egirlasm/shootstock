@@ -53,4 +53,7 @@ public:
 	afx_msg void OnBnClickedButtonPrev();
 	afx_msg void OnBnClickedButtonNext();
 	void BackupToSqlite(void);
+	afx_msg void OnBnClickedButtonSave();
+	string m_szPath;
+	CString m_curDate;
 };

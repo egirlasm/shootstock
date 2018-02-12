@@ -105,6 +105,9 @@
     <ClInclude Include="sqlite3\sqlite3.h">
       <Filter>sqlite</Filter>
     </ClInclude>
+    <ClInclude Include="sha1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shootStock.cpp">
@@ -151,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="sqlite3\sqlite3.c">
       <Filter>sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="sha1.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
