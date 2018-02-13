@@ -824,6 +824,7 @@ void CBuyList::OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult)
 			theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,pMain->m_strScrNo);
 		}
 	}
+
 	*pResult = 0;
 }
 

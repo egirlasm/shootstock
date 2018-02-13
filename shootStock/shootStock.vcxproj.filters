@@ -25,6 +25,9 @@
     <Filter Include="sqlite">
       <UniqueIdentifier>{12ef9c75-4a9a-46d1-bf1a-2d411d8d95a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CLabel">
+      <UniqueIdentifier>{57ecac2b-1abd-4d21-bc94-552a07500f12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -111,6 +114,9 @@
     <ClInclude Include="Income.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\CLabel\Label.h">
+      <Filter>CLabel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shootStock.cpp">
@@ -163,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="Income.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CLabel\Label.cpp">
+      <Filter>CLabel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

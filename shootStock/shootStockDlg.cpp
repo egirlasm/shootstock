@@ -253,6 +253,7 @@ BEGIN_MESSAGE_MAP(CshootStockDlg, CDialogEx)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CshootStockDlg::OnSelchangeTab)
 
 	ON_COMMAND(ID_LIST_SEARCH, &CshootStockDlg::OnListSearch)
+	
 END_MESSAGE_MAP()
 
 
@@ -300,6 +301,19 @@ BOOL CshootStockDlg::OnInitDialog()
 	InitTabControl();
 	InitDealList();
 	InitConcludeList();
+
+	CFont fnt;
+	LOGFONT lf;
+	::ZeroMemory(&lf, sizeof(lf));
+	lf.lfHeight = 18;
+	lf.lfWeight = FW_BOLD;
+	::lstrcpy(lf.lfFaceName, (LPCWSTR)"Tahoma");
+	fnt.CreateFontIndirect(&lf);
+	GetDlgItem(IDC_STATIC_CODE)->SetFont(&fnt);
+	GetDlgItem(IDC_STATIC_NAME)->SetFont(&fnt);
+	GetDlgItem(IDC_STATIC_PRICE)->SetFont(&fnt);
+	fnt.Detach();
+
 	theApp.m_khOpenApi.CommConnect();
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -729,99 +743,74 @@ void CshootStockDlg::MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LP
 			return;
 		}
 
-
-
 		CString strCode;
 
-		//int i, nFieldCnt = sizeof(lstFID) / sizeof(*lstFID);		// 전체크기 / 원소크기 = 원소개수
-		//for (i = 0; i < nFieldCnt; i++)
-		//{
-		//	if (_wtoi(lstFID[i].strRealKey) < 0)
-		//	{
-		//		continue;
-		//	}
+		//실시간 데이터를 항목에 맞게 가져온다.
+		strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, 10);	strData.Trim();
+		COLORREF tempC = RGB(0,0,255);
 
-			//실시간 데이터를 항목에 맞게 가져온다.
-			strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, 10);	strData.Trim();
+		if (strData.GetAt(0) == '+' )	// 부호에 따라 색상변경
+		{
+			tempC =  RGB(255,0,0);
+		}
+		else if (strData.GetAt(0) == '-')	// 부호에 따라 색상변경
+		{
+			tempC =  RGB(0,0,255);
+		}
+		else
+		{
+			tempC =  RGB(0,0,0);
+		}
 
-			//항목에 맞는 데이터가 있을때만 그리드에 표시한다.
-// 			if (strData != "")
-// 			{
-				//m_grdRate.SetItemText(_ttoi(strIndex), i, theApp.ConvDataFormat(lstFID[i].nDataType, strData, lstFID[i].strBeforeData, lstFID[i].strAfterData));
-				//m_dealList.SetItemText(_ttoi(strIndex), 6, strData);
+		m_dealList.SetItemText(_ttoi(strIndex), 6,  theApp.ConvDataFormat(lstFID[5].nDataType, strData, lstFID[5].strBeforeData, lstFID[5].strAfterData));
+		m_dealList.SetItemTextColor(_ttoi(strIndex), 6,tempC);
 
-				COLORREF tempC = RGB(0,0,255);
+		CString strBuyPrice = m_dealList.GetItemText(_ttoi(strIndex),4);
+		CString strBuyCount = m_dealList.GetItemText(_ttoi(strIndex),5);
+		CString strfee = m_dealList.GetItemText(_ttoi(strIndex),7);
+		CString strTax = m_dealList.GetItemText(_ttoi(strIndex),8);
+		int nCount =  _wtoi(strBuyCount);
+		int nNowPrice = _wtoi(strData);
+		if( nNowPrice < 0) //if minus then convert to plus
+			nNowPrice = nNowPrice * -1;
+		int nTotalBought = _wtoi(strBuyPrice) *nCount;
+		int nowTotalPrice = nNowPrice * nCount;
 
-				if (strData.GetAt(0) == '+' )	// 부호에 따라 색상변경
-				{
-					tempC =  RGB(255,0,0);
-				}
-				else if (strData.GetAt(0) == '-')	// 부호에 따라 색상변경
-				{
-					tempC =  RGB(0,0,255);
-				}
-				else
-				{
-					tempC =  RGB(0,0,0);
-				}
+		int nProfit = nowTotalPrice - nTotalBought - _wtoi(strfee) - _wtoi(strTax);
 
-				m_dealList.SetItemText(_ttoi(strIndex), 6,  theApp.ConvDataFormat(lstFID[5].nDataType, strData, lstFID[5].strBeforeData, lstFID[5].strAfterData));
-				m_dealList.SetItemTextColor(_ttoi(strIndex), 6,tempC);
+		double nPercentageProfit = (double)nProfit / (double)nTotalBought* 100;
+		CString strTemp;
+		strTemp.Format(_T("%d"), nProfit);
+		m_dealList.SetItemText(_ttoi(strIndex), 2,  theApp.ConvDataFormat(lstFID[6].nDataType, strTemp, lstFID[6].strBeforeData, lstFID[6].strAfterData));
+		if (strTemp.GetAt(0) == '+' )	// 부호에 따라 색상변경
+		{
+			tempC =  RGB(255,0,0);
+		}
+		else if (strTemp.GetAt(0) == '-')	// 부호에 따라 색상변경
+		{
+			tempC =  RGB(0,0,255);
+		}
+		else
+		{
+			tempC =  RGB(0,0,0);
+		}
+		m_dealList.SetItemTextColor(_ttoi(strIndex), 2,tempC);
+		strTemp.Format(_T("%0.2lf"), nPercentageProfit);
+		m_dealList.SetItemText(_ttoi(strIndex),3,  theApp.ConvDataFormat(lstFID[7].nDataType, strTemp, lstFID[7].strBeforeData, lstFID[7].strAfterData));
+		if (strTemp.GetAt(0) == '+' )	// 부호에 따라 색상변경
+		{
+			tempC =  RGB(255,0,0);
+		}
+		else if (strTemp.GetAt(0) == '-')	// 부호에 따라 색상변경
+		{
+			tempC =  RGB(0,0,255);
+		}
+		else
+		{
+			tempC =  RGB(0,0,0);
+		}
+		m_dealList.SetItemTextColor(_ttoi(strIndex), 3,tempC);
 
-				CString strBuyPrice = m_dealList.GetItemText(_ttoi(strIndex),4);
-				CString strBuyCount = m_dealList.GetItemText(_ttoi(strIndex),5);
-				CString strfee = m_dealList.GetItemText(_ttoi(strIndex),7);
-				CString strTax = m_dealList.GetItemText(_ttoi(strIndex),8);
-				int nCount =  _wtoi(strBuyCount);
-				int nNowPrice = _wtoi(strData);
-				if( nNowPrice < 0) //if minus then convert to plus
-					nNowPrice = nNowPrice * -1;
-				int nTotalBought = _wtoi(strBuyPrice) *nCount;
-				int nowTotalPrice = nNowPrice * nCount;
-
-				int nProfit = nowTotalPrice - nTotalBought - _wtoi(strfee) - _wtoi(strTax);
-
-				double nPercentageProfit = (double)nProfit / (double)nTotalBought* 100;
-				CString strTemp;
-				strTemp.Format(_T("%d"), nProfit);
-				m_dealList.SetItemText(_ttoi(strIndex), 2,  theApp.ConvDataFormat(lstFID[6].nDataType, strTemp, lstFID[6].strBeforeData, lstFID[6].strAfterData));
-				if (strTemp.GetAt(0) == '+' )	// 부호에 따라 색상변경
-				{
-					tempC =  RGB(255,0,0);
-				}
-				else if (strTemp.GetAt(0) == '-')	// 부호에 따라 색상변경
-				{
-					tempC =  RGB(0,0,255);
-				}
-				else
-				{
-					tempC =  RGB(0,0,0);
-				}
-				m_dealList.SetItemTextColor(_ttoi(strIndex), 2,tempC);
-				strTemp.Format(_T("%0.2lf"), nPercentageProfit);
-				m_dealList.SetItemText(_ttoi(strIndex),3,  theApp.ConvDataFormat(lstFID[7].nDataType, strTemp, lstFID[7].strBeforeData, lstFID[7].strAfterData));
-				if (strTemp.GetAt(0) == '+' )	// 부호에 따라 색상변경
-				{
-					tempC =  RGB(255,0,0);
-				}
-				else if (strTemp.GetAt(0) == '-')	// 부호에 따라 색상변경
-				{
-					tempC =  RGB(0,0,255);
-				}
-				else
-				{
-					tempC =  RGB(0,0,0);
-				}
-				m_dealList.SetItemTextColor(_ttoi(strIndex), 3,tempC);
-//			}
-		//}
-
-		//종목별 수익률 계산
-		//strCode = sJongmokCode;
-		//SetRate(_ttoi(strIndex), strCode);
-
-		//총 수익률 계산
-		//SetTotalRate();
 	}
 
 
@@ -1071,20 +1060,6 @@ void CshootStockDlg::MainOnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCT
 			CSubject * subject = new CSubject(nPrice);
 			if(strData == L"2"){
 				isRunning = true;
-				 //최종 체결된 매수가로 지정매도 걸어놔도 괜찮을듯
-				//m_boughtPrice = nPrice;
-				//m_checkedCount += _wtoi(strCount); //체결된 수량 매번 더해주기  절반씩 체결될떄가 있으니깐
-				//CString tmpCount = L"";
-				//if(m_checkedData.Lookup(sJongmokCode,tmpCount)){
-				//	int nTmpCount = _wtoi(tmpCount);
-				//	nTmpCount += _wtoi(strCount);
-				//	tmpCount.Format(L"%d",nTmpCount);
-				//	m_checkedData.SetAt(sJongmokCode,tmpCount);
-				//}else
-				//	m_checkedData.SetAt(sJongmokCode,strCount);
-				
-				
-				//m_checkedSubject.SetAt(sJongmokCode,my);
 				if(m_checkedSubject.Lookup(sJongmokCode,(CObject*&)subject)){
 					int nTempCount = _wtoi(strCount);
 					//int orgCount = subject->get_count();
@@ -1105,7 +1080,7 @@ void CshootStockDlg::MainOnReceiveChejanData(LPCTSTR sGubun, LONG nItemCnt, LPCT
 							nPrice = nPrice - nPrice % 100 + 100;
 						}
 						//int sellPrice = nPrice + nPrice * m_sellPercentage /100;
-						fmt.Format(L"설정된 매도 퍼센트 %d%% 즉 매도가격 = %d",m_sellPercentage,nPrice);
+						fmt.Format(L"설정된 매도 퍼센트 %0.2f%% 즉 매도가격 = %d",m_sellPercentage,nPrice);
 						TraceOutputW(fmt);
 						CString strRQName = _T("주식주문");
 						LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 2, sJongmokCode,subject->get_count(), nPrice, L"00", L"");
@@ -2072,5 +2047,7 @@ BOOL CshootStockDlg::PreTranslateMessage(MSG* pMsg)
 		return TRUE;
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
+
+
 
 

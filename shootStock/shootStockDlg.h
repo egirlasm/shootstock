@@ -13,7 +13,8 @@
 #include "DailyReport.h"
 #include "ChartView.h"
 #include "Income.h"
-
+#include "afxwin.h"
+#include "../CLabel/Label.h"
 #define WM_UPDATESTATUSBAR WM_USER + 255
 
 // Simple CObject-derived class for CObList and other examples
@@ -167,6 +168,6 @@ public:
 	//int m_boughtCount;
 	CReportCtrl m_ConcludeList;
 	void InitConcludeList(void);
-	// //수동으로 취고한건지 자동으로 취소 된건지
+	// //수동으로 취소한건지 자동으로 취소 된건지
 	bool isManual;
 };

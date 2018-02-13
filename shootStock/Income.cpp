@@ -17,6 +17,20 @@ const stGRID lstOPT10074[] =
 	{L"당일매매세금",		L"13",	-1,	5,	DT_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
 
 };
+
+const stGRID lstOPT10077[] = 
+{
+	{L"종목명",				L"20",	-1,	0,	DT_NONE,	FALSE,	DT_CENTER,	L"",	L""}, 
+	{L"체결량",				L"20",	-1,	1,	DT_NUMBER,	FALSE,	DT_CENTER,	L"",	L""}, 
+	{L"매입단가",			L"10",	-1,	2,	DT_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"체결가",				L"25",	-1,	3,	DT_NUMBER,	FALSE,	DT_CENTER,	L"",	L""}, 
+	{L"당일매도손익",		L"11",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"손익율",				L"13",	-1,	5,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
+	{L"당일매매수수료",		L"13",	-1,	5,	DT_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"당일매매세금",		L"13",	-1,	6,	DT_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"종목코드",			L"13",	-1,	7,	DT_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	
+};
 // CIncome dialog
 
 IMPLEMENT_DYNAMIC(CIncome, CDialogEx)
@@ -42,6 +56,8 @@ BEGIN_MESSAGE_MAP(CIncome, CDialogEx)
 	
 	
 	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_BUTTON1, &CIncome::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CIncome::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -88,6 +104,7 @@ BOOL CIncome::PreTranslateMessage(MSG* pMsg)
 //******************************************************************/
 void CIncome::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg)
 {
+	m_IncomeList.SetRedraw(FALSE);
 	CString strRQName = sRQName;
 	if (strRQName == _T("일자별실현손익요청"))			// 관심종목정보 설정
 	{
@@ -136,6 +153,59 @@ void CIncome::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCT
 			}
 		}
 	}
+	if (strRQName == _T("당일실현손익상세요청"))			// 관심종목정보 설정
+	{
+		CString strData;
+		CStringArray arrData;
+		int nFieldCnt = sizeof(lstOPT10077) / sizeof(*lstOPT10077);	;		// 전체크기 / 원소크기 = 원소개수
+		//m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 		CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+		// 		//pMain->m_buyList.m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 
+		// 		CReportCtrl * pListCtrl = &pMain->m_buyList.m_ListBox;
+		strRQName = _T("당일실현손익");
+		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"당일실현손익");	strData.Trim();
+		::ShowWindow(::GetDlgItem(m_hWnd,IDC_STATIC1),SW_HIDE);
+		SetDlgItemText(IDC_STATIC1,strData);
+		::ShowWindow(::GetDlgItem(m_hWnd,IDC_STATIC1),SW_SHOW);
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"매매수수료");	strData.Trim();
+		//SetDlgItemText(IDC_STATIC2,strData);
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"매매세금");	strData.Trim();
+		//SetDlgItemText(IDC_STATIC3,strData);
+
+		strRQName = _T("당일실현손익상세");
+		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);
+		for (i = 0; i < nCnt; i++)
+		{
+			arrData.RemoveAll();
+			for (j = 0; j < nFieldCnt; j++)
+			{
+				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstOPT10077[j].strKey);	strData.Trim();
+				if(j==0){
+
+					int dwitem = 0;
+					int dwCount = m_IncomeList.GetItemCount();
+					dwitem = m_IncomeList.InsertItem(dwCount,theApp.ConvDataFormat(lstOPT10077[j].nDataType, strData, lstOPT10077[j].strBeforeData, lstOPT10077[j].strAfterData),0);
+				}else{
+					int n = strData.Find(L".");
+					if(n != -1)
+						strData = strData.Mid(0,n+2);
+					m_IncomeList.SetItemText(i,j,strData );
+					m_IncomeList.SetItemText(i,j, theApp.ConvDataFormat(lstOPT10077[j].nDataType, strData, lstOPT10077[j].strBeforeData, lstOPT10077[j].strAfterData));
+					if(lstOPT10077[j].bTextColor){
+						if(strData.GetAt(0) == '-')
+							m_IncomeList.SetItemTextColor(i,j,RGB(0,0,255));
+
+						else
+							m_IncomeList.SetItemTextColor(i,j,RGB(255,0,0));
+					}
+
+				}
+				// 				pListCtrl->SetItem(i,j,1,strData,0,0,0,0);
+			}
+		}
+	}
+	m_IncomeList.SetRedraw(TRUE);
 }
 
 //*******************************************************************/
@@ -216,4 +286,84 @@ HBRUSH CIncome::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 	// TODO:  Return a different brush if the default is not desired
 	return hbr;
+}
+
+
+void CIncome::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	m_IncomeList.DeleteAllItems();
+	m_IncomeList.DeleteAllColumns();
+	m_IncomeList.SetExtendedStyle(LVS_EX_FULLROWSELECT  | LVS_EX_DOUBLEBUFFER);
+	m_IncomeList.ModifyStyle(0,LVS_SINGLESEL); 
+	m_IncomeList.SetGridLines();
+	m_IncomeList.InsertColumn(0,L"일자",0,70);
+	m_IncomeList.InsertColumn(1,L"매수금액",0,70);
+	m_IncomeList.InsertColumn(2,L"매도금액",0,80);
+	m_IncomeList.InsertColumn(3,L"당일매도손익",0,80);
+	m_IncomeList.InsertColumn(4,L"당일매매수수료",0,80);
+	m_IncomeList.InsertColumn(5,L"당일매매세금",0,80);
+
+
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strRQName = _T("일자별실현손익요청");
+	theApp.m_khOpenApi.SetInputValue(L"계좌번호"	, pMain->m_AccNo);
+
+	//비밀번호 = 사용안함(공백)
+
+	SYSTEMTIME stTime;
+
+	GetLocalTime(&stTime);
+
+	CTime nextDay(stTime); //Local Time을 CTime으로 변환
+	nextDay += CTimeSpan(-7,0,0,0); //Ctime + 하루
+
+	stTime.wYear = (WORD)nextDay.GetYear();
+
+	stTime.wMonth = (WORD)nextDay.GetMonth();
+
+	stTime.wDay = (WORD)nextDay.GetDay();
+
+	CString strDate;
+	strDate.Format(L"%04d%02d%02d",stTime.wYear,stTime.wMonth,stTime.wDay);
+
+	theApp.m_khOpenApi.SetInputValue(L"시작일자"	,  strDate);
+
+	CString t = COleDateTime::GetCurrentTime().Format(L"%Y%m%d");
+	theApp.m_khOpenApi.SetInputValue(L"종료일자"	, t);
+
+
+	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10074",0,m_strScrNo);
+	theApp.IsError(ret);
+}
+
+
+void CIncome::OnBnClickedButton2()
+{
+	// TODO: Add your control notification handler code here
+	m_IncomeList.DeleteAllItems();
+	m_IncomeList.DeleteAllColumns();
+	m_IncomeList.SetExtendedStyle(LVS_EX_FULLROWSELECT  | LVS_EX_DOUBLEBUFFER);
+	m_IncomeList.ModifyStyle(0,LVS_SINGLESEL); 
+	m_IncomeList.SetGridLines();
+	m_IncomeList.InsertColumn(0,L"종목명",0,70);
+	m_IncomeList.InsertColumn(1,L"체결량",0,70);
+	m_IncomeList.InsertColumn(2,L"매입단가",0,80);
+	m_IncomeList.InsertColumn(3,L"체결가",0,80);
+	m_IncomeList.InsertColumn(4,L"당일매도손익",0,80);
+	m_IncomeList.InsertColumn(5,L"손익율",0,80);
+	m_IncomeList.InsertColumn(6,L"당일매매수수료",0,80);
+	m_IncomeList.InsertColumn(7,L"당일매매세금",0,80);
+	m_IncomeList.InsertColumn(8,L"종목코드",0,80);
+
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strRQName = _T("당일실현손익상세요청");
+	theApp.m_khOpenApi.SetInputValue(L"계좌번호"	, pMain->m_AccNo);
+
+	
+	theApp.m_khOpenApi.SetInputValue(L"비밀번호"	, L"2419");
+
+	theApp.m_khOpenApi.SetInputValue(L"종목코드"	, L"");
+	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10077",0,m_strScrNo);
+	theApp.IsError(ret);
 }

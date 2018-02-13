@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CIni_Src\Ini.h" />
+    <ClInclude Include="..\CLabel\Label.h" />
     <ClInclude Include="..\Registry\Registry.h" />
     <ClInclude Include="..\ReportCtrl\ReportCtrl.h" />
     <ClInclude Include="BuyList.h" />
@@ -133,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CIni_Src\Ini.cpp" />
+    <ClCompile Include="..\CLabel\Label.cpp" />
     <ClCompile Include="..\Registry\Registry.cpp" />
     <ClCompile Include="..\ReportCtrl\ReportCtrl.cpp" />
     <ClCompile Include="BuyList.cpp" />
