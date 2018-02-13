@@ -83,6 +83,7 @@ public:
 // 구현입니다.
 	BOOL IsError(long lErrCode);		// 오류 여부
 	CString ConvDataFormat(int nType, LPCTSTR szData, LPCTSTR szBeforeData = L"", LPCTSTR szAfterData = L"");
+	CString removeSign(LPCTSTR szData);
 	DECLARE_MESSAGE_MAP()
 public:
 	int g_MyMoney;

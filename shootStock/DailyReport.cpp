@@ -10,29 +10,18 @@
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
 const stGRID lstOPT10086[] = 
 {
-	{L"날짜",				L"20",	-1,	0,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,	L"",	L""}, 
+	{L"날짜",				L"20",	-1,	0,	DT_DATE,	FALSE,	DT_CENTER,	L"",	L""}, 
 	{L"시가",				L"20",	-1,	1,	DT_ZERO_NUMBER,	TRUE,	DT_CENTER,	L"",	L""}, 
 	{L"고가",				L"10",	-1,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"저가",				L"25",	-1,	3,	DT_TIME,		TRUE,	DT_CENTER,	L"",	L""}, 
+	{L"저가",				L"25",	-1,	3,	DT_ZERO_NUMBER,		TRUE,	DT_CENTER,	L"",	L""}, 
 	{L"종가",				L"11",	-1,	4,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"전일비",				L"13",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"등락률",				L"14",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"거래량",				L"14",	-1,	7,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	/*{L"금액(백만)",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"신용비",				L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"개인",				L"14",	-1,	-1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"기관",				L"14",	-1,	-1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"외인수량",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"외국계",				L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"프로그램",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"외인비",				L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"체결강도",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"외인보유",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"외인비중",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, */
-	{L"개인순매수",			L"14",	-1,	8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"기관순매수",			L"14",	-1,	9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"외인순매수",			L"14",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	//{L"신용잔고율",			L"14",	-1,	-1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"전일비",				L"13",	-1,	5,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"등락률",				L"14",	-1,	6,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
+	{L"거래량",				L"14",	-1,	7,	DT_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"개인순매수",			L"14",	-1,	8,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"기관순매수",			L"14",	-1,	9,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"외인순매수",			L"14",	-1,	10,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+
 };
 // CDailyReport dialog
 
@@ -124,7 +113,8 @@ void CDailyReport::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName,
 					dwitem = m_RepotCtrl.InsertItem(dwCount,strData,0);
 				}
 				if(lstOPT10086[j].nCol != -1){
-					m_RepotCtrl.SetItem(i,j,1,strData,0,0,0,0);
+					//m_RepotCtrl.SetItem(i,j,1,theApp.removeSign(strData),0,0,0,0);
+					m_RepotCtrl.SetItemText(i,j, theApp.ConvDataFormat(lstOPT10086[j].nDataType, strData, lstOPT10086[j].strBeforeData, lstOPT10086[j].strAfterData));
 					if(lstOPT10086[j].bTextColor){
 						if(strData.GetAt(0) == '+')
 							m_RepotCtrl.SetItemTextColor(dwitem,j,RGB(255,0,0));
@@ -155,10 +145,11 @@ void CDailyReport::InitList(void)
 	m_RepotCtrl.InsertColumn(4,L"종가",0,80);
 	m_RepotCtrl.InsertColumn(5,L"전일대비",0,80);
 	m_RepotCtrl.InsertColumn(6,L"등락률",0,80);
-	m_RepotCtrl.InsertColumn(7,L"거래량",0,80);
-	m_RepotCtrl.InsertColumn(8,L"개인",0,80);
-	m_RepotCtrl.InsertColumn(9,L"기관",0,80);
-	m_RepotCtrl.InsertColumn(10,L"외인",0,80);
+	m_RepotCtrl.InsertColumn(7,L"거래량",LVCFMT_RIGHT,80);
+
+	m_RepotCtrl.InsertColumn(8,L"개인",LVCFMT_RIGHT,80);
+	m_RepotCtrl.InsertColumn(9,L"기관",LVCFMT_RIGHT,80);
+	m_RepotCtrl.InsertColumn(10,L"외인",LVCFMT_RIGHT,80);
 	
 }
 

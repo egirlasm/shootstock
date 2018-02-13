@@ -12,6 +12,7 @@
 #include "JongDlg.h"
 #include "DailyReport.h"
 #include "ChartView.h"
+#include "Income.h"
 
 #define WM_UPDATESTATUSBAR WM_USER + 255
 
@@ -130,6 +131,7 @@ public:
 	CTopPrice m_topPrice;
 	CJongDlg  m_JongDlg;
 	CDailyReport m_DailyReport;
+	CIncome m_incomeDlg;
 	CChartView m_ChartView;
 	CStatusBar m_StatusBar;
 	void InitStatusBar(void);

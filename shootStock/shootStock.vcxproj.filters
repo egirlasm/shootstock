@@ -108,6 +108,9 @@
     <ClInclude Include="sha1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Income.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shootStock.cpp">
@@ -156,6 +159,9 @@
       <Filter>sqlite</Filter>
     </ClCompile>
     <ClCompile Include="sha1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Income.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

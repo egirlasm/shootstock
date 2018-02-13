@@ -214,7 +214,7 @@ CshootStockDlg::CshootStockDlg(CWnd* pParent /*=NULL*/)
 	, m_staticName(_T("Á¾¸ñ¸í"))
 	, m_staticPrice(_T("ÇöÀç°¡"))
 	, m_boardJongmokCode(_T(""))
-	, m_sellPercentage(1.5)
+	, m_sellPercentage(2)
 	, m_FuckPercentage(0)
 	, isRunning(false)
 	//, m_boughtPrice(0)
@@ -356,14 +356,6 @@ HCURSOR CshootStockDlg::OnQueryDragIcon()
 
 void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg){
 	CString strRQName = sRQName;
-	if (strRQName == _T("ÁÖ½ÄÁÖ¹®"))			// °ü½ÉÁ¾¸ñÁ¤º¸ ¼³Á¤
-	{
-		CString strData = theApp.m_khOpenApi.GetCommData(sTrcode, sRQName, 0, _T("ÁÖ¹®¹øÈ£"));	strData.Trim();
-		CString fmt;
-		fmt.Format(L"ÁÖ½Ä ÁÖ¹®¹øÈ£ %s",strData);
-		TraceOutputW(fmt);
-	}
-
 	if (strRQName == _T("½Ç½Ã°£¹ÌÃ¼°á¿äÃ»"))		// ÁÖ½Ä±âº»Á¤º¸ ¼³Á¤
 	{
 		m_ConcludeList.DeleteAllItems();
@@ -380,7 +372,7 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 			strIndex.Format(L"%d", i);
 
 			int dwitem = 0;
-			int dwCount = m_dealList.GetItemCount();
+			int dwCount = m_ConcludeList.GetItemCount();
 
 
 
@@ -414,221 +406,8 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 		}
 
 	}
-
-
-	//Áõ°Å±Ý¼¼ºÎ³»¿ªÁ¶È¸¿äÃ»
-	if (strRQName == _T("Áõ°Å±Ý¼¼ºÎ³»¿ªÁ¶È¸¿äÃ»"))		// ÁÖ½Ä±âº»Á¤º¸ ¼³Á¤
-	{
-		CString strData;
-		CStringArray arrData;
-		int nFieldCnt =  sizeof(lstOPW00013) / sizeof(*lstOPW00013);		// ÀüÃ¼Å©±â / ¿ø¼ÒÅ©±â = ¿ø¼Ò°³¼ö
-
-		strRQName = _T("Áõ°Å±Ý¼¼ºÎ³»¿ªÁ¶È¸");
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0,L"±ÝÀÏÀç»ç¿ë°¡´É±Ý¾×" );	strData.Trim();
-		TraceOutputW(strData);
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0,L"Çö±Ý±Ý¾×" );	strData.Trim();
-		TraceOutputW(strData);
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0,L"±ÝÀÏÀç»ç¿ë´ë»ó±Ý¾×" );	strData.Trim();
-		TraceOutputW(strData);
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0,L"±ÝÀÏÀç»ç¿ë»ç¿ë±Ý¾×" );	strData.Trim();
-		TraceOutputW(strData);
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0,L"Çö±ÝÁõ°Å±Ý" );	strData.Trim();
-		TraceOutputW(strData);
-		if(!strData.IsEmpty()){
-			theApp.g_MyMoney = _wtoi(strData);
-			if(!theApp.g_MyMoney) return;
-			MoneyOutputter outputter;
-			string strMoney  = outputter.as_string(stod(strData.GetBuffer()));
-			USES_CONVERSION;
-			strData =  A2W(strMoney.c_str());
-			strData = L"´ë»ó±Ý¾×: "+ strData;
-			SendMessage(WM_UPDATESTATUSBAR,1,(LPARAM)strData.GetBuffer());
-		}
-		//arrData.RemoveAll();
-		//for (int nIdx = 0; nIdx < nFieldCnt; nIdx++)
-		//{
-		//
-		//	strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0,lstOPW00013[i].strKey );	strData.Trim();
-		//	TraceOutputW(strData);
-		//	if(!strData.IsEmpty()){
-		//		TraceOutputW(strData);
-		//	}
-		//	arrData.Add(strData);
-		//}
-	}
-	if (strRQName == _T("¿¹¼ö±Ý»ó¼¼ÇöÈ²¿äÃ»"))		// ÁÖ½Ä±âº»Á¤º¸ ¼³Á¤
-	{
-		CString strData;
-
-		strRQName = _T("¿¹¼ö±Ý»ó¼¼ÇöÈ²¿äÃ»");
-
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"¿¹¼ö±Ý");	strData.Trim();
-
-		theApp.g_MyMoney = _wtoi(strData);
-		if(!theApp.g_MyMoney) return;
-		MoneyOutputter outputter;
-		string strMoney  = outputter.as_string(stod(strData.GetBuffer()));
-		USES_CONVERSION;
-		strData =  A2W(strMoney.c_str());
-		strData = L"¿¹¼ö±Ý: "+ strData;
-		SendMessage(WM_UPDATESTATUSBAR,1,(LPARAM)strData.GetBuffer());
-
-		//SetDlgItemInt(IDC_EDIT1,atoi(strData));
-
-
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"d+1ÃßÁ¤¿¹¼ö±Ý");	strData.Trim();
-		//SetDlgItemInt(IDC_EDIT2,atoi(strData));
-
-
-
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"d+2ÃßÁ¤¿¹¼ö±Ý");	strData.Trim();
-		//SetDlgItemInt(IDC_EDIT3,atoi(strData));
-
-
-
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"d+1Ãâ±Ý°¡´É±Ý¾×");	strData.Trim();
-		//SetDlgItemInt(IDC_EDIT4,atoi(strData));
-
-
-		strMoney  = outputter.as_string(stod(strData.GetBuffer()));
-
-		strData =  A2W(strMoney.c_str());
-		strData = L"d+1Ãâ±Ý°¡´É: "+strData;
-		SendMessage(WM_UPDATESTATUSBAR,2,(LPARAM)strData.GetBuffer());
-
-		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"d+2Ãâ±Ý°¡´É±Ý¾×");	strData.Trim();
-
-
-		strMoney  = outputter.as_string(stod(strData.GetBuffer()));
-
-		strData =  A2W(strMoney.c_str());
-		strData = L"d+2Ãâ±Ý°¡´É: "+strData;
-		SendMessage(WM_UPDATESTATUSBAR,3,(LPARAM)strData.GetBuffer());
-		//SetDlgItemInt(IDC_EDIT5,atoi(strData));
-		//SetDataJongInfoGrid(arrData);
-	}
-
-
-	CString strPrevNext(sPrevNext);
-
-	if (strRQName == _T("°èÁÂ¼öÀÍ·ü"))			// °èÁÂ¼öÀÍ·ü
-	{
-		m_bNextFlag = FALSE;
-		CString strData;
-		int nFieldCnt = sizeof(lstFID) / sizeof(*lstFID);		// ÀüÃ¼Å©±â / ¿ø¼ÒÅ©±â = ¿ø¼Ò°³¼ö
-
-		strRQName = _T("°èÁÂ¼öÀÍ·ü");
-		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);	//µ¥ÀÌÅÍ °Ç¼ö
-		m_nCount += nCnt;	//µ¥ÀÌÅÍ °Ç¼ö¿¡ ±×¸®µå Çì´õ Ãß°¡
-		//m_grdRate.SetRowCount(m_nCount);
-		CString strIndex= L"";
-		for (i = 0; i < nCnt; i++)
-		{
-			CString strCode;
-			strIndex.Format(L"%d", i);
-
-			int dwitem = 0;
-			for (j = 0; j < nFieldCnt; j++)
-			{
-				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstFID[j].strKey);
-				strData.Trim();
-				if (j == 0)	//Á¾¸ñ¸í
-				{
-					strCode = strData;
-					m_mapJongCode.SetAt(strCode, strIndex);
-
-					//m_grdKwanSim.SetRowHeight(i, 20);		// ÇàÀÇ ³ôÀÌ ¼³Á¤
-					//m_grdKwanSim.SetItemText(i, 0, strCode);
-					int dwCount = m_dealList.GetItemCount();
-
-					dwitem = m_dealList.InsertItem(dwCount,strCode,0);
-				}
-				else if (j == 1) //½Å¿ë±¸ºÐ
-				{
-					if (strData == _T("00"))
-					{
-						strData = _T("Çö±Ý");
-					} 
-					else if (strData == _T("03"))
-					{
-						strData = _T("À¶ÀÚ");
-					}
-					else if (strData == _T("99"))
-					{
-						strData = _T("À¶ÀÚÇÕ");
-					}
-
-					m_dealList.SetItemText(i,j, theApp.ConvDataFormat(lstFID[j].nDataType, strData, lstFID[j].strBeforeData,lstFID[j].strAfterData));
-				}
-				if (strData != "")
-				{
-					if(j == 4){
-						m_OrderList.SetAt(strCode,strData);
-					}
-
-					m_dealList.SetItemText(i,j, theApp.ConvDataFormat(lstFID[j].nDataType, strData, lstFID[j].strBeforeData,lstFID[j].strAfterData));
-					//m_grdRate.SetItemFormat(i + 1 + m_nNextRow, lstFID[j].nCol, lstFID[j].nAlign);
-					//m_grdRate.SetItemText(i + 1 + m_nNextRow, j, theApp.ConvDataFormat(lstFID[j].nDataType, strData, lstFID[j].strBeforeData, lstFID[j].strAfterData));
-				}
-			}
-
-			int nRow(0);
-			//nRow = i + 1 + m_nNextRow;
-
-			//Á¾¸ñº° ¼öÀÍ·ü °è»ê
-			//SetRate(nRow, strCode);
-
-			//CString strIndex;
-			//strIndex.Format(_T("%d"), nRow);
-
-			//Á¾¸ñÀ» Å°°ªÀ¸·Î ÇØ¼­ ·Î¿ì°ªÀ» °ü¸®ÇÑ´Ù.
-			//m_mapJongCode.SetAt(strCode, strIndex);
-		}
-
-		//ÃÑ ¼öÀÍ·ü °è»ê
-		//SetTotalRate();
-
-		if (strPrevNext == "2")	//¿¬¼ÓÁ¶È¸
-		{
-			m_bNextFlag = TRUE;	//¿¬¼ÓÁ¶È¸¿©ºÎ
-			//m_nCount = m_nCount - 1;	//±×¸®µå Çì´õRow¼ö/¸¦ »«´Ù.
-			//m_nNextRow = m_nCount;	//¿¬¼ÓÁ¶È¸·Î ¸¶Áö¸· Row°ªÀ» ÀúÀå.
-
-			//CString strAccNo;
-			//m_EdtAcc.GetWindowText(strAccNo);	//ÀÔ·ÂÇÑ °èÁÂ¹øÈ£.
-
-			//¿¬¼ÓÁ¶È¸¸¦ ÇÑ´Ù.
-			theApp.m_khOpenApi.SetInputValue(L"°èÁÂ¹øÈ£", m_AccNo);
-			theApp.m_khOpenApi.CommRqData(L"°èÁÂ¼öÀÍ·ü", L"OPT10085", 2, m_strScrNo);
-		}
-
-		//¿¬¼ÓÁ¶È¸°¡ ¾Æ´Ò¶§¸¸ ½Ç½Ã°£ µî·ÏÀ» ÇÑ´Ù.
-		if (!m_bNextFlag)
-		{
-			CString strRQName = _T("°ü½ÉÁ¾¸ñ"), strCodeList, strCode;
-			long  nCodeCount(0);
-
-			for (int nRow = 0; nRow < m_nCount; nRow++)
-			{
-				nCodeCount++;
-				strCode = m_dealList.GetItemText(nRow, 0);
-				strCode.Trim();
-				strCode + ";";
-				strCodeList += strCode ;
-				//Á¾¸ñÄÚµå = Àü¹® Á¶È¸ÇÒ Á¾¸ñÄÚµå
-				theApp.m_khOpenApi.SetInputValue(L"Á¾¸ñÄÚµå"	,  strCode);
-				theApp.m_khOpenApi.CommRqData( L"ÁÖ½Ä±âº»Á¤º¸¿äÃ»",  L"OPT10001", 0, m_strScrNo); 
-			}
-
-			long lRet = theApp.m_khOpenApi.CommKwRqData(strCodeList, 0, nCodeCount, 0, strRQName, m_strScrNo);
-			if (!lRet)
-			{
-				return;
-			}
-
-		}
-	}
-
+	
+	
 	if (strRQName == _T("ÁÖ½Ä±âº»Á¤º¸¿äÃ»"))			// °èÁÂ¼öÀÍ·ü//if (!lstrcmp(sRealType, L"ÁÖ½ÄÃ¼°á"))	// ÁÖ½ÄÃ¼°á
 	{
 
@@ -660,31 +439,8 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 			}
 			arrData.Add(strData);
 		}
-		//SetDataJongInfoGrid(arrData);
-
-		//m_grdRate.SetItemText(_ttoi(strIndex), i, theApp.ConvDataFormat(lstFID[i].nDataType, strData, lstFID[i].strBeforeData, lstFID[i].strAfterData));
-// 		m_dealList.SetItemText(0, 3, arrData.GetAt(2));
-// 
-// 		//Á¾¸ñº° ¼öÀÍ·ü °è»ê
-// 		CString strCode = arrData.GetAt(0);
-// 
-// 		CString strIndex;
-// 		if (!m_mapJongCode.Lookup(strCode, strIndex))
-// 		{
-// 			return;
-// 		}
-// 		SetRate(_wtoi(strIndex), strCode);
-
-		//ÃÑ ¼öÀÍ·ü °è»ê
-		//SetTotalRate();
 	}
-// 	{L"Á¾¸ñ¹øÈ£",			L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-// 	{L"Á¾¸ñ¸í",				L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-// 	{L"Æò°¡¼ÕÀÍ",			L"10",	0,	0,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-// 	{L"¼öÀÍ·ü",				L"25",	0,	1,	DT_ZERO_NUMBER,		TRUE,	DT_CENTER,L"",L""}, 
-// 	{L"¸ÅÀÔ°¡",				L"11",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
-// 	{L"º¸À¯¼ö·®",			L"11",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
-// 	{L"ÇöÀç°¡",				L"11",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+
 	if (strRQName == _T("°èÁÂÆò°¡ÀÜ°í³»¿ª¿äÃ»"))			// °èÁÂ¼öÀÍ·ü//if (!lstrcmp(sRealType, L"ÁÖ½ÄÃ¼°á"))	// ÁÖ½ÄÃ¼°á
 	{
 		//m_checkedSubject.RemoveAll();
@@ -842,6 +598,13 @@ void CshootStockDlg::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQNam
 
 			}
 			break;
+		case 6:
+			{
+
+				((CIncome *)pWnd)->OnReceiveTrDataKhopenapictrl(sScrNo, sRQName, sTrcode, sRecordName, sPrevNext, nDataLength, sErrorCode, sMessage, sSplmMsg);
+
+			}
+			break;
 		}
 	}
 }
@@ -937,6 +700,8 @@ void CshootStockDlg::MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LP
 				
 				strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, 10);	strData.Trim(); //ÇöÀç°¡
 				int nPrice = _wtoi(strData);
+				if(nPrice < 0)
+					nPrice = nPrice * -1;
 				int nTmpBoughtPrice  = subject->get_price();
 				if(nPrice < nTmpBoughtPrice){
 					int nTemp = nTmpBoughtPrice - nPrice;
@@ -1008,8 +773,13 @@ void CshootStockDlg::MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LP
 				CString strfee = m_dealList.GetItemText(_ttoi(strIndex),7);
 				CString strTax = m_dealList.GetItemText(_ttoi(strIndex),8);
 				int nCount =  _wtoi(strBuyCount);
+				int nNowPrice = _wtoi(strData);
+				if( nNowPrice < 0) //if minus then convert to plus
+					nNowPrice = nNowPrice * -1;
 				int nTotalBought = _wtoi(strBuyPrice) *nCount;
-				int nProfit = _wtoi(strData) * nCount -nTotalBought - _wtoi(strfee) - _wtoi(strTax);
+				int nowTotalPrice = nNowPrice * nCount;
+
+				int nProfit = nowTotalPrice - nTotalBought - _wtoi(strfee) - _wtoi(strTax);
 
 				double nPercentageProfit = (double)nProfit / (double)nTotalBought* 100;
 				CString strTemp;
@@ -1157,6 +927,12 @@ void CshootStockDlg::OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTST
 				{
 
 					((CChartView *)pWnd)->OnReceiveRealDataKhopenapictrl(sJongmokCode, sRealType, sRealData);
+				}
+				break;
+			case 6:		// µî¶ô·ü
+				{
+
+					((CIncome *)pWnd)->OnReceiveRealDataKhopenapictrl(sJongmokCode, sRealType, sRealData);
 				}
 				break;
 			}
@@ -1935,10 +1711,11 @@ void CshootStockDlg::InitTabControl(void)
 	m_TabControl.InsertItem(1, _T("ÇöÀç°¡"));
 	m_TabControl.InsertItem(2, _T("ÀüÀÏµî¶ô·ü"));
 	m_TabControl.InsertItem(3, _T("ÀÏÀÚº°½Ã¼¼"));
+	m_TabControl.InsertItem(4, _T("ÀÏÀÚº°¼öÀÍÇöÈ²"));
 	pImageList.Detach();
 
 	tm.mask = TCIF_IMAGE;   //   ¼ÓÉÏÕâ¾ä¾Í¿ÉÒÔÁË   
-	for(int i=0; i<3; i++)   
+	for(int i=0; i<4; i++)   
 	{   
 		m_TabControl.GetItem(i,&tm);   
 		tm.iImage=i;   
@@ -1991,6 +1768,18 @@ void CshootStockDlg::InitTabControl(void)
 
 	m_mapScreen.SetAt(m_DailyReport.m_strScrNo, &m_DailyReport);
 
+
+	if (!GetNextScreenNum(6))
+	{
+		return;
+	}
+
+
+	m_incomeDlg.m_strScrNo.Format(L"%04d", m_nScrN0);
+	m_incomeDlg.Create(IDD_DIALOG_INCOME,&m_TabControl);
+
+	m_mapScreen.SetAt(m_incomeDlg.m_strScrNo, &m_incomeDlg);
+
 	CRect r;
 	m_TabControl.GetClientRect (&r);
 
@@ -1998,6 +1787,7 @@ void CshootStockDlg::InitTabControl(void)
 	m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW);
 	m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW);
 	m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+	m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 }
 
 
@@ -2014,18 +1804,22 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		break;
 	case 1:
 		m_buyList.SetWindowPos (NULL,3,22,r.right-8,r.bottom -28,SWP_HIDEWINDOW);
 		m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		break;
 	case 2:
 		m_buyList.SetWindowPos (NULL,3,22,r.right-8,r.bottom -28,SWP_HIDEWINDOW);
 		m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+
 		m_topPrice.SendSearch();
 		//m_TabControl.SetCurSel(0);
 		break;
@@ -2034,8 +1828,18 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
+		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SendSearch();
 		//m_TabControl.SetCurSel(0);
+		break;
+	case 4:
+		m_buyList.SetWindowPos (NULL,3,22,r.right-8,r.bottom -28,SWP_HIDEWINDOW);
+		m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
+		//m_TabControl.SetCurSel(0);
+		m_incomeDlg.GetDailyIncome();
 		break;
 	}
 	*pResult = 0;

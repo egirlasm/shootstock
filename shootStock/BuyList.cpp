@@ -35,82 +35,21 @@ const stGRID lstOPTKWFID_B[] =
 {
 	{L"종목코드",		L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
 	{L"종목명",			L"-1",	-1,	2,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"현재가",			L"0",	-1,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"전일대비기호",	L"10",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
-	{L"등락율",			L"2",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
-	{L"거래량",			L"5",	-1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"현재가",			L"10",	-1,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"전일대비기호",	L"25",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
+	{L"등락율",			L"12",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
+	{L"거래량",			L"13",	-1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
 	{L"시가",			L"16",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	{L"고가",			L"17",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	{L"저가",			L"18",	-1,	8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"종가",			L"18",	-1,9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매도호가",			L"18",	-1,	11,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종가",			L"10",	-1,9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매수호가",		L"28",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매도호가",		L"27",	-1,	11,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
 	/*{L"전일대비",		L"11",	-1,	-1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
 	{L"전일거래량대비",	L"30",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
 };
 
-const stGRID lstHOGAZAN[] = 
-{
-	/////////////////////////////////////
-	// 총매도/매수 잔량
-	{L"호가시간",		L"61",	0,	0,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""},
-	{L"매도호가",		L"63",	0,	1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	/////////////////////////////////////
-	// 매도호가
-	{L"매도10차선잔량",	L"70",	1,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도10차선호가",	L"50",	1,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도9차선잔량",	L"69",	2,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도9차선호가",	L"49",	2,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도8차선잔량",	L"68",	3,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도8차선호가",	L"48",	3,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도7차선잔량",	L"67",	4,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도7차선호가",	L"47",	4,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도6차선잔량",	L"66",	5,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도6차선호가",	L"46",	5,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도5차선잔량",	L"65",	6,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도5차선호가",	L"45",	6,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도4차선잔량",	L"64",	7,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도4차선호가",	L"44",	7,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도3차선잔량",	L"63",	8,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도3차선호가",	L"43",	8,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도2차선잔량",	L"62",	9,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도2차선호가",	L"42",	9,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도최우선잔량",	L"61",	10,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매도최우선호가",	L"41",	10,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	/////////////////////////////////////
-	// 매수호가
-	{L"매수최우선호가",	L"51",	11,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매도최우선잔량",	L"71",	11,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수2차선호가",	L"52",	12,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수2차선잔량",	L"72",	12,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수3차선호가",	L"53",	13,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수3차선잔량",	L"73",	13,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수4차선호가",	L"54",	14,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수4차선잔량",	L"74",	14,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수5차선호가",	L"55",	15,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수5차선잔량",	L"75",	15,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수6차선호가",	L"56",	16,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수6차선잔량",	L"76",	16,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수7차선호가",	L"57",	17,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수7차선잔량",	L"77",	17,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수8차선호가",	L"58",	18,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수8차선잔량",	L"78",	18,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수9차선호가",	L"59",	19,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수9차선잔량",	L"79",	19,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"매수10차선호가",	L"60",	20,	1,	DT_NUMBER,		TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수10차선잔량",	L"80",	20,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	/////////////////////////////////////
-	// 총잔량
-	{L"총매도잔량",		L"121",	21,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""},
-	{L"총매수잔량",		L"125",	21,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-	/////////////////////////////////////
-	// 호가잔량기준시간
-	{L"호가잔량기준시간",L"21",	21,	1,	DT_TIME,		FALSE,	DT_CENTER,	L"",	L""}, 
-	/////////////////////////////////////
-	// 시간외 매도/매수 잔량
-	{L"시간외매도잔량",	L"131",	22,	0,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""},
-	{L"시간외매수잔량",	L"132",	22,	2,	DT_NUMBER,		FALSE,	DT_RIGHT,	L"",	L""}, 
-};
+
 
 
 IMPLEMENT_DYNAMIC(CBuyList, CDialogEx)
@@ -201,7 +140,7 @@ void CBuyList::SendJongSearch(int nCodeCount/* = 0*/, CString strCodeList/* = ""
 	if (nCodeCount < 1 || strCodeList.GetLength() < 1)
 	{
 		int i, nCnt = m_ListBox.GetItemCount();
-		if (nCnt < 2)
+		if (nCnt < 3)
 		{
 			return;
 		}
@@ -209,7 +148,7 @@ void CBuyList::SendJongSearch(int nCodeCount/* = 0*/, CString strCodeList/* = ""
 		for (i = 1; i < nCnt; i++)
 		{
 			nCodeCount++;
-			CString temp = m_ListBox.GetItemText(i, 0) + ";";
+			CString temp = m_ListBox.GetItemText(i, 1) + ";";
 			strCodeList += temp;
 		}
 	}
@@ -352,33 +291,7 @@ void CBuyList::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPC
 	if (strRQName == _T("주식기본정보요청"))			// 계좌수익률//if (!lstrcmp(sRealType, L"주식체결"))	// 주식체결
 	{
 
-		//CString strData;
 
-		//strRQName = _T("주식기본정보");
-
-		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"종목코드");	strData.Trim();
-
-		//CString strTemp;
-		//if (!m_mapJongCode.Lookup(strData, strTemp))
-		//{
-		//	return;
-		//}
-		//int nRow = _wtol(strTemp) -1;
-		////m_ListBox.SetItem(nRow,5,1,strData,0,0,0,0);
-		//
-		////if(strData.GetAt(0) == '+')
-		////	m_ListBox.SetItemTextColor(dwitem,j,RGB(255,0,0));
-		////else if(strData.GetAt(0) == '-')
-		////	m_ListBox.SetItemTextColor(dwitem,j,RGB(0,0,255));
-		////else
-		////	m_ListBox.SetItemTextColor(dwitem,j,RGB(0,0,0));
-
-		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"시가");	strData.Trim();
-		//m_ListBox.SetItem(nRow,5,1,strData,0,0,0,0);
-		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"고가");	strData.Trim();
-		//m_ListBox.SetItem(nRow,6,1,strData,0,0,0,0);
-		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"시가");	strData.Trim();
-		//m_ListBox.SetItem(nRow,7,1,strData,0,0,0,0);
 	}
 }
 //*******************************************************************/
@@ -543,21 +456,20 @@ void CBuyList::OnUpdateListData(CStringArray &arrData, CString strRealType/* = "
 		/////////////////////////////////////////////
 		if (lstOPTKWFID_B[i].bTextColor)
 		{
-			strTemp = arrData.GetAt(3);
+			strTemp = arrData.GetAt(i);
+
 			COLORREF tempC = RGB(0,0,255);
-			if (strTemp == "1" || strTemp == "2")	// 부호에 따라 색상변경
+
+			if (strTemp.GetAt(0) == '+' )	// 부호에 따라 색상변경
 			{
-				strTemp = "1";
 				tempC =  RGB(255,0,0);
 			}
-			else if (strTemp == "4" || strTemp == "5")	// 부호에 따라 색상변경
+			else if (strTemp.GetAt(0) == '-')	// 부호에 따라 색상변경
 			{
-				strTemp = "-1";
 				tempC =  RGB(0,0,255);
 			}
 			else
 			{
-				strTemp = "0";
 				tempC =  RGB(0,0,0);
 			}
 			if(lstOPTKWFID_B[i].nCol != -1)
@@ -635,11 +547,6 @@ void CBuyList::OnBnClickedButtonSearch()
 
 	int dwitem = m_ListBox.InsertItem(dwCount,strCode,0);
 
-	// 		m_ListBox.SetItem(dwitem,1,1,usrMgr->strData1,0,0,0,0);
-	// 		m_ListBox.SetItem(dwitem,2,1,usrMgr->strData2,0,0,0,0);
-	// 		m_ListBox.SetItem(dwitem,3,1,usrMgr->strData3,0,0,0,0);
-	// 		m_ListBox.SetItem(dwitem,4,1,usrMgr->strData4,0,0,0,0);
-	//m_ListCtrl.SetItem(dwitem,4,1,ch,0,0,0,0);
 	m_ListBox.SetItemData(dwitem,(DWORD)strCode.GetBuffer());
 
 	if(isOdd(dwitem))
@@ -664,13 +571,13 @@ void CBuyList::OnBnClickedButtonDel()
 		{
 
 			_itow(i+1,strIndex,10);
-			strJongCode = m_ListBox.GetItemText(i,0);
+			strJongCode = m_ListBox.GetItemText(i,1);
 			//Jongmok.DeleteKey(L"JONG_CODE",strIndex);
 			//AfxMessageBox(strText);
 			CString strTemp;
 			strTemp.Format(L"관심종목 [%s %s] 을 삭제 하겠습니까?", 
-				 m_ListBox.GetItemText(i,0), 
-				 m_ListBox.GetItemText(i,1));
+				 m_ListBox.GetItemText(i,1), 
+				 m_ListBox.GetItemText(i,2));
 			if (MessageBox(strTemp, L"관심종목 삭제", MB_ICONQUESTION | MB_YESNO) == IDNO)
 			{
 				return;
@@ -695,7 +602,7 @@ void CBuyList::OnBnClickedButtonDel()
 			for (i = 1; i <= nCnt; i++)
 			{
 				strIndex.Format(L"%d", i);
-				strCode = m_ListBox.GetItemText(i-1, 0);
+				strCode = m_ListBox.GetItemText(i-1, 1);
 
 				// 종목코드 추가
 				//::WritePrivateProfileString("JONG_CODE", strIndex, strCode, strFileName);
@@ -794,8 +701,8 @@ void CBuyList::OnBnClickedOrder1()
 		if( m_ListBox.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED )
 		{
 
-			strJongCode = m_ListBox.GetItemText(i,0);
-			nowPrice = m_ListBox.GetItemText(i,2);
+			strJongCode = m_ListBox.GetItemText(i,1);
+			nowPrice = m_ListBox.GetItemText(i,3);
 			
 			//AfxMessageBox(strText);
 		}
@@ -873,20 +780,16 @@ void CBuyList::OnBnClickedButtonAdd(CString t_strCode)
 	
 	m_mapJongCode.SetAt(strCode, strIndex);
 
-	// 행 추가
-	//m_grdKwanSim.InsertRow("", -1);
-	//m_grdKwanSim.SetRowHeight(1, 20);		// 행의 높이 설정
-	//m_grdKwanSim.SetItemFormat(lstOPTKWFID[nCnt].nRow, lstOPTKWFID[nCnt].nCol, lstOPTKWFID[nCnt].nAlign);
-	//m_grdKwanSim.SetItemText(nCnt, 0, strCode);
+
 	int dwCount = m_ListBox.GetItemCount();
 
-	int dwitem = m_ListBox.InsertItem(dwCount,strCode,0);
+	CString strConstruction =  theApp.m_khOpenApi.GetMasterConstruction(strCode);
+	CString strState =  theApp.m_khOpenApi.GetMasterStockState(strCode);
+	CString strStatus = strConstruction + L"|"  + strState;
+	int dwitem = m_ListBox.InsertItem(dwCount,strStatus,0);
 
-	// 		m_ListBox.SetItem(dwitem,1,1,usrMgr->strData1,0,0,0,0);
-	// 		m_ListBox.SetItem(dwitem,2,1,usrMgr->strData2,0,0,0,0);
-	// 		m_ListBox.SetItem(dwitem,3,1,usrMgr->strData3,0,0,0,0);
-	// 		m_ListBox.SetItem(dwitem,4,1,usrMgr->strData4,0,0,0,0);
-	//m_ListCtrl.SetItem(dwitem,4,1,ch,0,0,0,0);
+	m_ListBox.SetItem(dwitem,1,1,strCode,0,0,0,0);
+
 	m_ListBox.SetItemData(dwitem,(DWORD)strCode.GetBuffer());
 
 	if(isOdd(dwitem))
@@ -915,7 +818,7 @@ void CBuyList::OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 		if( m_ListBox.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED )
 		{
-			strJongCode = m_ListBox.GetItemText(i,0);
+			strJongCode = m_ListBox.GetItemText(i,1);
 			pMain->m_boardJongmokCode = strJongCode;
 			theApp.m_khOpenApi.SetInputValue(L"종목코드",strJongCode);
 			theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,pMain->m_strScrNo);

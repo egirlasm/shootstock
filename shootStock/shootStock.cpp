@@ -183,7 +183,12 @@ BOOL CshootStockApp::IsError(long lErrCode)
 
 	return TRUE;
 }
-
+CString CshootStockApp::removeSign(LPCTSTR szData){
+	CString strTmp = szData;
+	strTmp.Remove('+');
+	strTmp.Remove('-');
+	return strTmp;
+}
 //*******************************************************************/
 //! Function Name : ConvDataFormat
 //! Function      : 문자열 포멧 설정
@@ -221,7 +226,7 @@ CString CshootStockApp::ConvDataFormat(int nType, LPCTSTR szData, LPCTSTR szBefo
 			}
 		}
 		break;
-	case DT_NUMBER:			// 숫자
+	case DT_NUMBER:			// 부호가 보류 있는 숫자
 		break;
 	case DT_ZERO_NUMBER:	// 숫자(0표시)
 		{
