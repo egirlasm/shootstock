@@ -11,9 +11,47 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <strsafe.h>
 #include "shootStockDlg.h"
 // CChartView dialog
+#define OUTPUT_BUFF_LEN 51200 
+static int nrst = 0;
+void DbgStrOutW(const wchar_t *fmt, ...)
+{
+	wchar_t szOutStr[OUTPUT_BUFF_LEN];
 
+	va_list ap;
+	va_start(ap, fmt);
+	StringCbVPrintfW(szOutStr, OUTPUT_BUFF_LEN, fmt, ap);
+	va_end(ap);
+
+
+	OutputDebugString(szOutStr);
+}
+
+void DbgStrOutA(const char *fmt, ...)
+{
+	char szOutStr[OUTPUT_BUFF_LEN];
+	va_list ap;
+	va_start(ap, fmt);
+	StringCbVPrintfA(szOutStr, OUTPUT_BUFF_LEN, fmt, ap);
+	va_end(ap);
+
+
+	//g_logger.puts(JsCPPUtils::Logger::LOGTYPE_INFO, szOutStr);
+	//LOG(INFO) << szOutStr;
+	HWND hWnd = FindWindowA(NULL, "Trace");
+	if (hWnd)
+	{
+		COPYDATASTRUCT pCopy;
+		memset(&pCopy, 0, sizeof(COPYDATASTRUCT));
+		pCopy.cbData = strlen(szOutStr) + 1;
+		pCopy.lpData = szOutStr;
+		pCopy.dwData = 0;
+		SendMessage(hWnd, WM_COPYDATA, 0, (LPARAM)&pCopy);
+	}
+	//OutputDebugStringA(szOutStr);
+}
 
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
 const stGRID lstOPT10081[] = 
@@ -103,9 +141,9 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		double * vol = new double[nCnt];
 		double * time = new double[nCnt];
 		//double open[nCnt],high[nCnt],low[nCnt],close[nCnt],vol[nCnt];
-		for (i = 0; i <= nCnt; i++)
+		for (i = 0; i < nCnt; i++)
 		{
-			int k = nCnt - i;
+			int k = nCnt - i -1;
 			for (j = 0; j < nFieldCnt; j++)
 			{
 				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstOPT10081[j].strKey);	strData.Trim();
@@ -115,6 +153,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 					int y = _wtoi(strData.Mid(0,4));
 					int m = _wtoi(strData.Mid(4,2));
 					int d = _wtoi(strData.Mid(6,2));
+					//DbgStrOutA("%d,%d,%d,%0.2f,k=%d",y,m,d,Chart::chartTime(y,m,d),k);
 					time[k] = Chart::chartTime(y,m,d);
 				}
 					
@@ -128,6 +167,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 					close[k] = _wtof(strData);
  			}
 		}
+		nCnt-=1;
 		DoubleArray t_vol(vol,nCnt);
 		DoubleArray t_open(open,nCnt);
 		DoubleArray t_high(high,nCnt);
@@ -142,6 +182,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		m_closeData = t_close;
 		m_volData = t_vol;
 		// Set the full x range to be the duration of the data
+		DbgStrOutA("t_time.len = %d",t_time.len);
 		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]);
 
 		// Initialize the view port to show the latest 20% of the time range
@@ -157,28 +198,28 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		m_ChartViewer.setMouseUsage(Chart::MouseUsageScroll);
 
 		// Enable mouse wheel zooming by setting the zoom ratio to 1.1 per wheel event
-		m_ChartViewer.setMouseWheelZoomRatio(1.1);
+		//m_ChartViewer.setMouseWheelZoomRatio(1.1);
 		m_ChartViewer.updateViewPort(true, true);
 
-		CRect r;
-		GetWindowRect(&r);
-
-		FinanceChart *c = new FinanceChart(r.Width()-50);
-		// Create an XYChart object of size 640 x 70 pixels   
-		// Disable default legend box, as we are using dynamic legend
-		c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
-
-		// Set the data into the finance chart object
-		c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
-
-		// Add the main chart with 240 pixels in height
-		c->addMainChart(70);
-
-		// Add candlestick symbols to the main chart, using green/red for up/down days
-		c->addCandleStick(0x00ff00, 0xff0000);
+// 		CRect r;
+// 		GetWindowRect(&r);
+// 
+// 		FinanceChart *c = new FinanceChart(r.Width()-50);
+// 		// Create an XYChart object of size 640 x 70 pixels   
+// 		// Disable default legend box, as we are using dynamic legend
+// 		c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+// 
+// 		// Set the data into the finance chart object
+// 		c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+// 
+// 		// Add the main chart with 240 pixels in height
+// 		c->addMainChart(70);
+// 
+// 		// Add candlestick symbols to the main chart, using green/red for up/down days
+// 		c->addCandleStick(0x00ff00, 0xff0000);
 
 		// Output the chart
-		m_ViewPortControl.setChart(c);
+		//m_ViewPortControl.setChart(c);
 		// Output the chart
 		
 		 m_ViewPortControl.setViewer(&m_ChartViewer);
@@ -520,61 +561,237 @@ static void CvtToKorean(char ch[256], string str)
 void CChartView::drawChart(CChartViewer *viewer)
 {
 	
+
+//	double viewPortStartDate = viewer->getValueAtViewPort("x", viewer->getViewPortLeft());
+//	double viewPortEndDate = viewer->getValueAtViewPort("x", viewer->getViewPortLeft() +
+//		viewer->getViewPortWidth());
+//
+//	DbgStrOutA("viewPortStartDate = %0.2f,viewPortEndDate = %0.2f",viewPortStartDate,viewPortEndDate);
+//	// Get the array indexes that corresponds to the visible start and end dates
+//	int startIndex = (int)floor(Chart::bSearch(m_timeStamps, viewPortStartDate));
+//	int endIndex = (int)ceil(Chart::bSearch(m_timeStamps, viewPortEndDate));
+//	int noOfPoints = endIndex - startIndex + 1;
+//
+//	DbgStrOutA("startIndex = %d,endIndex = %d,noOfPoints %d",startIndex,endIndex,noOfPoints);
+//	//XYChart *c = new XYChart(640, 400);
+//
+//	DoubleArray viewPortTimeStamps = DoubleArray(m_timeStamps.data + startIndex, noOfPoints);
+//	DoubleArray viewPortDataSeriesA = DoubleArray(m_highData.data + startIndex, noOfPoints);
+//	DoubleArray viewPortDataSeriesB = DoubleArray(m_lowData.data + startIndex, noOfPoints);
+//	DoubleArray viewPortDataSeriesC = DoubleArray(m_openData.data + startIndex, noOfPoints);
+//	DoubleArray viewPortDataSeriesD = DoubleArray(m_closeData.data + startIndex, noOfPoints);
+//	
 	CRect r;
 	GetWindowRect(&r);
-	// Create a FinanceChart object of width 720 pixels
-	FinanceChart *c = new FinanceChart(r.Width()-50);
+//	XYChart *c = new XYChart(r.Width()-50, r.Height()-350);
+//
+//
+//	CandleStickLayer *layer = c->addCandleStickLayer(viewPortDataSeriesA, viewPortDataSeriesB,
+//		viewPortDataSeriesC,viewPortDataSeriesD, 0x00ff00, 0xff0000);
+//
+//	// Set the line width to 2 pixels
+//	layer->setLineWidth(2);
+//
+//	// Create a FinanceChart object of width 720 pixels
+//	//FinanceChart *c = new FinanceChart(r.Width()-50);
+//	//XYChart*pl = c->addMainChart(r.Height()-350);
+//	//XYChart * pl = (XYChart*)c->getChart();
+//	//pl->setPlotArea(0,0, pl->getWidth() - 300, pl->getHeight() - 92, 0xffffff, -1, Chart::Transparent, 0xffffff, 0xffffff);
+//	// Add a title to the chart
+//	//c->addTitle("Finance Chart Demonstration");
+//	
+//	// Disable default legend box, as we are using dynamic legend
+//	//c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+//
+//	// Set the data into the finance chart object
+//	//c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+//
+//
+//	// Add the main chart with 240 pixels in height
+//
+//	
+//
+//	//Axis * ppp = ((XYChart*)c->getChart())->xAxis();
+//	//viewer->syncDateAxisWithViewPort("x",ppp);
+//
+//	// Add a 10 period simple moving average to the main chart, using brown color
+//	//c->addSimpleMovingAvg(5, 0x1A8D21);
+//
+//	// Add a 20 period simple moving average to the main chart, using purple color
+//	//c->addSimpleMovingAvg(20, 0x9900ff);
+//	//c->addSimpleMovingAvg(60, 0x8C85E4);
+//	// Add candlestick symbols to the main chart, using green/red for up/down days
+//	//c->addCandleStick( 0xff0000,0x0000ff);
+//
+//	// Add 20 days bollinger band to the main chart, using light blue (9999ff) as the border and
+//	// semi-transparent blue (c06666ff) as the fill color
+//	//c->addBollingerBand(20, 2, 0x9999ff, 0xc06666ff);
+//
+//	// Add a 75 pixels volume bars sub-chart to the bottom of the main chart, using green/red/grey for
+//	// up/down/flat days
+//	//c->addVolBars(75, 0xff0000, 0x0000ff, 0x808080);
+//
+//	// Append a 14-days RSI indicator chart (75 pixels high) after the main chart. The main RSI line
+//	// is purple (800080). Set threshold region to +/- 20 (that is, RSI = 50 +/- 25). The upper/lower
+//	// threshold regions will be filled with red (ff0000)/blue (0000ff).
+//	//c->addRSI(75, 14, 0x800080, 20, 0xff0000, 0x0000ff);
+//
+//	// Append a MACD(26, 12) indicator chart (75 pixels high) after the main chart, using 9 days for
+//	// computing divergence.
+//	//c->addMACD(75, 26, 12, 9, 0x0000ff, 0xff00ff, 0x008000);
+//
+//	// Include track line with legend for the latest data values
+//	//trackFinance(c, ((XYChart *)c->getChart(0))->getPlotArea()->getRightX());
+//
+//	// Assign the chart to the WinChartViewer
+//	//viewer->setChart(c);
+//	
+//// 	c->setPlotArea(55, 55, c->getWidth() - 80, c->getHeight() - 92, c->linearGradientColor(0, 55, 0, 
+//// 		c->getHeight() - 35, 0xf0f6ff, 0xa0c0ff), -1, Chart::Transparent, 0xffffff, 0xffffff);
+//
+//	delete viewer->getChart();
+//	viewer->setChart(c);
+	double viewPortStartDate = viewer->getValueAtViewPort("x", viewer->getViewPortLeft());
+	double viewPortEndDate = viewer->getValueAtViewPort("x", viewer->getViewPortLeft() +
+		viewer->getViewPortWidth());
 
-	// Add a title to the chart
-	c->addTitle("Finance Chart Demonstration");
+	// Get the array indexes that corresponds to the visible start and end dates
+	int startIndex = (int)floor(Chart::bSearch(m_timeStamps, viewPortStartDate));
+	int endIndex = (int)ceil(Chart::bSearch(m_timeStamps, viewPortEndDate));
+	int noOfPoints = endIndex - startIndex + 1;
+
+	// Extract the part of the data array that are visible.
+	DoubleArray viewPortTimeStamps = DoubleArray(m_timeStamps.data + startIndex, noOfPoints);
+	DoubleArray viewPortDataSeriesA = DoubleArray(m_openData.data + startIndex, noOfPoints);
+	DoubleArray viewPortDataSeriesB = DoubleArray(m_closeData.data + startIndex, noOfPoints);
+	DoubleArray viewPortDataSeriesC = DoubleArray(m_highData.data + startIndex, noOfPoints);
+	DoubleArray viewPortDataSeriesD = DoubleArray(m_lowData.data + startIndex, noOfPoints);
+	//
+	// At this stage, we have extracted the visible data. We can use those data to plot the chart.
+	//
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	// Configure overall chart appearance. 
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	// Create an XYChart object of size 650 x 350 pixels, with a white (ffffff) background and grey 
+	// (aaaaaa) border
+	XYChart *c = new XYChart(r.Width()-50, r.Height()-350, 0xffffff, 0xaaaaaa);
+
+	// Set the plotarea at (55, 55) with width 90 pixels less than chart width, and height 90 pixels
+	// less than chart height. Use a vertical gradient from light blue (f0f6ff) to sky blue (a0c0ff)
+	// as background. Set border to transparent and grid lines to white (ffffff).
+	//c->setPlotArea(55, 55, c->getWidth() - 90, c->getHeight() - 90, 0xffffff, -1, Chart::Transparent, 0xffffff, 0xffffff);
+
+	// As the data can lie outside the plotarea in a zoomed chart, we need enable clipping.
+	//c->setClipping();
+
+	//// Add a title to the chart using 18 pts Times New Roman Bold Italic font
+	//c->addTitle("   Zooming and Scrolling with Track Line (2)", "timesbi.ttf", 18);
+
+	//// Add a legend box at (55, 30) using horizontal layout. Use 8pts Arial Bold as font. Set the
+	//// background and border color to Transparent and use line style legend key.
+	//LegendBox *b = c->addLegend(55, 30, false, "arialbd.ttf", 8);
+	//b->setBackground(Chart::Transparent);
+	//b->setLineStyleKey();
+
+	//// Set the axis stem to transparent
+	//c->xAxis()->setColors(Chart::Transparent);
+	//c->yAxis()->setColors(Chart::Transparent);
+
+	//// Add axis title using 10pts Arial Bold Italic font
+	//c->yAxis()->setTitle("Ionic Temperature (C)", "arialbi.ttf", 10);
+	   c->setYAxisOnRight(true);
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	// Add data to chart
+	///////////////////////////////////////////////////////////////////////////////////////
+		//CRect r;
+		//GetWindowRect(&r);
+		//XYChart *c = new XYChart(r.Width()-50, r.Height()-350);
+	c->setPlotArea(25, 25, c->getWidth() - 90, c->getHeight() - 90)->setGridColor(0xc0c0c0, 0xc0c0c0);
+
 	
-	// Disable default legend box, as we are using dynamic legend
-	c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+		CandleStickLayer *layer = c->addCandleStickLayer(viewPortDataSeriesC, viewPortDataSeriesD,
+			viewPortDataSeriesA,viewPortDataSeriesB, 0xff0000,0x0000ff);
 
-	// Set the data into the finance chart object
-	c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+		
+	
+		// Set the line width to 2 pixels
+		layer->setLineWidth(1);
+		
 
+	// 
+	// In this example, we represent the data by lines. You may modify the code below to use other
+	// representations (areas, scatter plot, etc).
+	//
 
-	// Add the main chart with 240 pixels in height
+	// Add a line layer for the lines, using a line width of 2 pixels
+	//LineLayer *layer = c->addLineLayer();
+	//layer->setLineWidth(2);
 
-	c->addMainChart(r.Height()-350);
+	//// In this demo, we do not have too many data points. In real code, the chart may contain a lot
+	//// of data points when fully zoomed out - much more than the number of horizontal pixels in this
+	//// plot area. So it is a good idea to use fast line mode.
+	//layer->setFastLineMode();
 
-	//Axis * ppp = ((XYChart*)c->getChart())->xAxis();
-	//viewer->syncDateAxisWithViewPort("x",ppp);
+	//// Now we add the 3 data series to a line layer, using the color red (ff0000), green
+	//// (00cc00) and blue (0000ff)
+	//layer->setXData(viewPortTimeStamps);
+	//layer->addDataSet(viewPortDataSeriesA, 0xff3333, "Alpha");
+	//layer->addDataSet(viewPortDataSeriesB, 0x008800, "Beta");
+	//layer->addDataSet(viewPortDataSeriesC, 0x3333CC, "Gamma");
 
-	// Add a 10 period simple moving average to the main chart, using brown color
-	//c->addSimpleMovingAvg(5, 0x1A8D21);
+	///////////////////////////////////////////////////////////////////////////////////////
+	// Configure axis scale and labelling
+	///////////////////////////////////////////////////////////////////////////////////////
 
-	// Add a 20 period simple moving average to the main chart, using purple color
-	//c->addSimpleMovingAvg(20, 0x9900ff);
-	//c->addSimpleMovingAvg(60, 0x8C85E4);
-	// Add candlestick symbols to the main chart, using green/red for up/down days
-	c->addCandleStick( 0xff0000,0x0000ff);
+	// Set the x-axis as a date/time axis with the scale according to the view port x range.
+	//viewer->syncDateAxisWithViewPort("x", c->xAxis());
 
-	// Add 20 days bollinger band to the main chart, using light blue (9999ff) as the border and
-	// semi-transparent blue (c06666ff) as the fill color
-	//c->addBollingerBand(20, 2, 0x9999ff, 0xc06666ff);
+	//
+	// In this demo, the time range can be from a few years to a few days. We demonstrate how to set
+	// up different date/time format based on the time range.
+	//
 
-	// Add a 75 pixels volume bars sub-chart to the bottom of the main chart, using green/red/grey for
-	// up/down/flat days
-	c->addVolBars(75, 0xff0000, 0x0000ff, 0x808080);
+	// If all ticks are yearly aligned, then we use "yyyy" as the label format.
+	//c->xAxis()->setFormatCondition("align", 360 * 86400);
+	//c->xAxis()->setLabelFormat("{value|yyyy}");
 
-	// Append a 14-days RSI indicator chart (75 pixels high) after the main chart. The main RSI line
-	// is purple (800080). Set threshold region to +/- 20 (that is, RSI = 50 +/- 25). The upper/lower
-	// threshold regions will be filled with red (ff0000)/blue (0000ff).
-	//c->addRSI(75, 14, 0x800080, 20, 0xff0000, 0x0000ff);
+	//// If all ticks are monthly aligned, then we use "mmm yyyy" in bold font as the first 
+	//// label of a year, and "mmm" for other labels.
+	//c->xAxis()->setFormatCondition("align", 30 * 86400);
+	//c->xAxis()->setMultiFormat(Chart::StartOfYearFilter(), "<*font=bold*>{value|mmm yyyy}", 
+	//	Chart::AllPassFilter(), "{value|mmm}");
 
-	// Append a MACD(26, 12) indicator chart (75 pixels high) after the main chart, using 9 days for
-	// computing divergence.
-	//c->addMACD(75, 26, 12, 9, 0x0000ff, 0xff00ff, 0x008000);
+	//// If all ticks are daily algined, then we use "mmm dd<*br*>yyyy" in bold font as the 
+	//// first label of a year, and "mmm dd" in bold font as the first label of a month, and
+	//// "dd" for other labels.
+	//c->xAxis()->setFormatCondition("align", 86400);
+	//c->xAxis()->setMultiFormat(Chart::StartOfYearFilter(), 
+	//	"<*block,halign=left*><*font=bold*>{value|mmm dd<*br*>yyyy}", 
+	//	Chart::StartOfMonthFilter(), "<*font=bold*>{value|mmm dd}");
+	//c->xAxis()->setMultiFormat(Chart::AllPassFilter(), "{value|dd}");
 
-	// Include track line with legend for the latest data values
-	//trackFinance(c, ((XYChart *)c->getChart(0))->getPlotArea()->getRightX());
+	//// For all other cases (sub-daily ticks), use "hh:nn<*br*>mmm dd" for the first label of
+	//// a day, and "hh:nn" for other labels.
+	//c->xAxis()->setFormatCondition("else");
+	//c->xAxis()->setMultiFormat(Chart::StartOfDayFilter(), 
+	//	"<*font=bold*>{value|hh:nn<*br*>mmm dd}", Chart::AllPassFilter(), "{value|hh:nn}");
 
-	// Assign the chart to the WinChartViewer
-	//viewer->setChart(c);
+	///////////////////////////////////////////////////////////////////////////////////////
+	// Output the chart
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	// We need to update the track line too. If the mouse is moving on the chart (eg. if 
+	// the user drags the mouse on the chart to scroll it), the track line will be updated
+	// in the MouseMovePlotArea event. Otherwise, we need to update the track line here.
+	/*if ((!viewer->isInMouseMoveEvent()) && viewer->isMouseOnPlotArea())
+		trackLineLabel(c, viewer->getPlotAreaMouseX());*/
+
 	delete viewer->getChart();
 	viewer->setChart(c);
+
 }
 
 
@@ -817,8 +1034,8 @@ void CChartView::OnBnClickedButtonAdd()
 //
 void CChartView::OnMouseMovePlotArea()
 {
-	trackFinance((MultiChart *)m_ChartViewer.getChart(), m_ChartViewer.getPlotAreaMouseX());
-	m_ChartViewer.updateDisplay();
+	//trackFinance((MultiChart *)m_ChartViewer.getChart(), m_ChartViewer.getPlotAreaMouseX());
+	//m_ChartViewer.updateDisplay();
 }
 
 void CChartView::SendSearch(void)
@@ -831,7 +1048,7 @@ void CChartView::SendSearch(void)
 	theApp.m_khOpenApi.SetInputValue(L"기준일자"	, t);
 
 	//비밀번호입력매체구분 = 00
-	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"0");
+	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"1");
 
 	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10081",0,m_strScrNo);
 	theApp.IsError(ret);

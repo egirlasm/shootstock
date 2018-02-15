@@ -59,7 +59,8 @@ BOOL CJongDlg::OnInitDialog()
 			//TRACE(_T("%s\n"), tmp);
 			CString tmpName =  theApp.m_khOpenApi.GetMasterCodeName(tmp);
 			m_MarketList.SetAt(tmp,tmpName);
-			m_TreeList.InsertItem(tmpName,top,TVI_LAST);
+			HTREEITEM cur = m_TreeList.InsertItem(tmpName,top,TVI_LAST);
+			m_TreeList.SetItemData(cur,(DWORD_PTR)tmp.GetBuffer());
 		}
 		else
 		{
@@ -76,7 +77,9 @@ BOOL CJongDlg::OnInitDialog()
 			//TRACE(_T("%s\n"), tmp);
 			CString tmpName =  theApp.m_khOpenApi.GetMasterCodeName(tmp);
 			m_MarketList.SetAt(tmp,tmpName);
-			m_TreeList.InsertItem(tmpName,top2,TVI_LAST);
+			HTREEITEM cur =m_TreeList.InsertItem(tmpName,top2,TVI_LAST);
+			m_TreeList.SetItemData(cur,(DWORD_PTR)tmp.GetBuffer());
+			//m_TreeList.SetItemData(tmp);
 		}
 		else
 		{

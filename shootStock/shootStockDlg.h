@@ -170,4 +170,5 @@ public:
 	void InitConcludeList(void);
 	// //수동으로 취소한건지 자동으로 취소 된건지
 	bool isManual;
+	bool isStockMarketOpen;
 };

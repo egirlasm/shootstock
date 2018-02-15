@@ -222,6 +222,7 @@ CshootStockDlg::CshootStockDlg(CWnd* pParent /*=NULL*/)
 	//, m_checkedCode(_T(""))
 	//, m_boughtCount(0)
 	, isManual(false)
+	, isStockMarketOpen(false)
 {
 	m_nRet = 0;
 	m_nScrN0 = 0;
@@ -840,6 +841,15 @@ void CshootStockDlg::MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LP
 			fmt.Format(L"현재시간 %s:%s:%s 장종료전 %s 분 남았습니다 ",szHour1,szMinute1,szSecond1,szMinute);
 			TraceOutputW(fmt);
 			break;
+		case 3: //장시작이 되였습니다
+			fmt.Format(L"현재시간 %s:%s:%s 장시작이 되였습니다 ",szHour1,szMinute1,szSecond1,szMinute);
+			TraceOutputW(fmt);
+			isStockMarketOpen = true;
+			break;
+		case 4:
+			fmt.Format(L"현재시간 %s:%s:%s 장종료 되였습니다 ",szHour1,szMinute1,szSecond1,szMinute);
+			TraceOutputW(fmt);
+			break;
 		case 8:
 			fmt.Format(L"현재시간 %s:%s:%s 장시작이 되였습니다 %s:%s:%s 분 남았습니다 ",szHour1,szMinute1,szSecond1,szHour,szMinute,szSecond);
 			TraceOutputW(fmt);
@@ -850,6 +860,7 @@ void CshootStockDlg::MainOnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LP
 			break;
 		default:
 			TraceOutputW(L"default 장시작시간 오류  ");
+			
 			break;
 		}
 	}
@@ -1387,6 +1398,10 @@ void CshootStockDlg::OnEventConnect(LONG nItemCnt)
 
 		
 		SendMessage(WM_UPDATESTATUSBAR,0,(LPARAM)L"연결성공.");
+
+
+
+
 		this->OnBtnGetAccData();
 		m_buyList.GetDataSearch();
 		//수익률계산 조회 //8100875411
@@ -1410,6 +1425,9 @@ void CshootStockDlg::OnEventConnect(LONG nItemCnt)
 		if (!theApp.IsError(lRet))
 		{
 		}
+
+
+
 		//theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
 		// lRet = theApp.m_khOpenApi.CommRqData(L"계좌수익률", L"OPT10085", 0, m_strScrNo);
 		//if (!theApp.IsError(lRet))
@@ -1525,8 +1543,10 @@ void CshootStockDlg::OnBtnGetAccData(void)
 		theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
 	}
 	
-	
-
+	CString t = COleDateTime::GetCurrentTime().Format(_T("%H"));
+	if(_wtoi(t) >= 9){
+		isStockMarketOpen = true;
+	}
 
 // 	여기서 strAcctList는 ';'로 분리한 보유계좌 목록임
 // 		예) "3040525910;567890;3040526010"

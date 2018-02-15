@@ -27,4 +27,6 @@ public:
 	CReportCtrl m_RepotCtrl;
 	void InitList(void);
 	void SendSearch(void);
+	afx_msg void OnBnClickedButtonMore();
+	CString m_LastSearchedDate;
 };

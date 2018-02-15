@@ -8,7 +8,7 @@
 #include "../CIni_Src/Ini.h"
 #include "shootStockDlg.h"
 // CBuyList dialog
-const CString m_strRealSet = L"주식시세;주식체결";
+const CString m_strRealSet = L"주식시세;주식체결;주식예상체결";
 
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
 const stGRID lstOPTKWFID[] = 
@@ -311,10 +311,11 @@ void CBuyList::OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRea
 	}
 
 	CString strCode;*/
-	//CshootStockDlg* pMain =  (CshootStockDlg*)AfxGetApp()->GetMainWnd();
+	
+	
 	//pMain->TraceOutputW(sRealType);
 	CString strIndex;
-	if (!m_mapJongCode.Lookup(sJongmokCode, strIndex) || m_strRealSet.Find(sRealType) < 0)
+	if (!m_mapJongCode.Lookup(sJongmokCode, strIndex) || m_strRealSet.Find(sRealType) < 0 )
 	{
 		return;
 	}
@@ -376,23 +377,27 @@ void CBuyList::OnReceiveRealDataKhopenapictrl(LPCTSTR sJongmokCode, LPCTSTR sRea
 // 		//SetDataKwanSimGrid(arrData, sRealType);
 // 		//OnUpdateListData(arrData,sRealType);
 // 	}
-// 	else if (!lstrcmp(sRealType, L"주식예상체결"))	// 주식체결
-// 	{
-// 		arrData.Add(sJongmokCode);
-// 		int i, nFieldCnt = sizeof(lstOPTKWFID_B) / sizeof(*lstOPTKWFID_B);		// 전체크기 / 원소크기 = 원소개수
-// 		for (i = 1; i < nFieldCnt; i++)
-// 		{
-// 			if (_wtoi(lstOPTKWFID[i].strRealKey) < 0)
-// 			{
-// 				arrData.Add(L"");
-// 				continue;
-// 			}
-// 			strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, _wtoi(lstOPTKWFID_B[i].strRealKey));	strData.Trim();
-// 			arrData.Add(strData);
-// 		}
-// 		//SetDataKwanSimGrid(arrData, sRealType);
-// 		//OnUpdateListData(arrData,sRealType);
-// 	}
+	CshootStockDlg* pMain =  (CshootStockDlg*)AfxGetApp()->GetMainWnd();
+	if(!pMain->isStockMarketOpen){ //징이열리면 예상체결이 필요 없음  화면이 느려지니깐 
+		if (!lstrcmp(sRealType, L"주식예상체결"))	// 주식체결
+		{
+			arrData.Add(sJongmokCode);
+			int i, nFieldCnt = sizeof(lstOPTKWFID_B) / sizeof(*lstOPTKWFID_B);		// 전체크기 / 원소크기 = 원소개수
+			for (i = 1; i < nFieldCnt; i++)
+			{
+				if (_wtoi(lstOPTKWFID[i].strRealKey) < 0)
+				{
+					arrData.Add(L"");
+					continue;
+				}
+				strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, _wtoi(lstOPTKWFID_B[i].strRealKey));	strData.Trim();
+				arrData.Add(strData);
+			}
+			//SetDataKwanSimGrid(arrData, sRealType);
+			OnUpdateListData(arrData,sRealType);
+		}
+	}
+
 };
 
 //*******************************************************************/
@@ -545,7 +550,12 @@ void CBuyList::OnBnClickedButtonSearch()
 	//m_grdKwanSim.SetItemText(nCnt, 0, strCode);
 	int dwCount = m_ListBox.GetItemCount();
 
-	int dwitem = m_ListBox.InsertItem(dwCount,strCode,0);
+	CString strConstruction =  theApp.m_khOpenApi.GetMasterConstruction(strCode);
+	CString strState =  theApp.m_khOpenApi.GetMasterStockState(strCode);
+	CString strStatus = strConstruction + L"|"  + strState;
+	int dwitem = m_ListBox.InsertItem(dwCount,strStatus,0);
+
+	m_ListBox.SetItem(dwitem,1,1,strCode,0,0,0,0);
 
 	m_ListBox.SetItemData(dwitem,(DWORD)strCode.GetBuffer());
 
@@ -587,6 +597,8 @@ void CBuyList::OnBnClickedButtonDel()
 			//m_grdKwanSim.DeleteRow(m_cellSelect.row);
 			m_ListBox.DeleteItem(i);
 			m_ListBox.Invalidate();
+			m_mapJongCode.RemoveAll();
+			theApp.m_khOpenApi.DisconnectRealData(m_strScrNo);
 			//Jongmok.DeleteKey(L"JOMG_CODE",strIndex);
 			DeleteFile(strFileIniPath);
 			//m_mapJongCode.RemoveAll();

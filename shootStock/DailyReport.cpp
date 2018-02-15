@@ -29,6 +29,7 @@ IMPLEMENT_DYNAMIC(CDailyReport, CDialogEx)
 
 CDailyReport::CDailyReport(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CDailyReport::IDD, pParent)
+	, m_LastSearchedDate(_T(""))
 {
 
 }
@@ -45,6 +46,7 @@ void CDailyReport::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CDailyReport, CDialogEx)
+	ON_BN_CLICKED(IDC_BUTTON_MORE, &CDailyReport::OnBnClickedButtonMore)
 END_MESSAGE_MAP()
 
 
@@ -111,10 +113,11 @@ void CDailyReport::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName,
 					int dwCount = m_RepotCtrl.GetItemCount();
 
 					dwitem = m_RepotCtrl.InsertItem(dwCount,strData,0);
+					m_LastSearchedDate = strData;
 				}
 				if(lstOPT10086[j].nCol != -1){
 					//m_RepotCtrl.SetItem(i,j,1,theApp.removeSign(strData),0,0,0,0);
-					m_RepotCtrl.SetItemText(i,j, theApp.ConvDataFormat(lstOPT10086[j].nDataType, strData, lstOPT10086[j].strBeforeData, lstOPT10086[j].strAfterData));
+					m_RepotCtrl.SetItemText(dwitem,j, theApp.ConvDataFormat(lstOPT10086[j].nDataType, strData, lstOPT10086[j].strBeforeData, lstOPT10086[j].strAfterData));
 					if(lstOPT10086[j].bTextColor){
 						if(strData.GetAt(0) == '+')
 							m_RepotCtrl.SetItemTextColor(dwitem,j,RGB(255,0,0));
@@ -127,7 +130,37 @@ void CDailyReport::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName,
 				
 			}
 		}
+
+
+
 		m_RepotCtrl.SetRedraw();
+
+
+		//if (!lstrcmp( sPrevNext , L"2"))	//연속조회
+		//{
+		//	
+
+		//	//연속조회를 한다.
+		//	CString strRQName = _T("일별주가요청");
+		//	CString strTRCode = TR_OPT10086;
+		//	//theApp.m_khOpenApi.SetInputValue("종목코드", "113810");
+		//	//계좌번호 = 전문 조회할 보유계좌번호  //51653280
+		//	//theApp.m_khOpenApi.SetInputValue(L"계좌번호"	,  L"8100875411");
+		//	//theApp.m_khOpenApi.SetInputValue("계좌번호"	,  "5165328010");
+		//	//비밀번호 = 사용안함(공백)
+		//	//시장구분 = 000:전체, 001:코스피, 101:코스닥
+		//	CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+		//	theApp.m_khOpenApi.SetInputValue(L"종목코드"	,pMain->m_staticCode );
+
+		//	COleDateTime tm = COleDateTime::GetCurrentTime();
+		//	CString curDate = tm.Format(L"%Y%m%d");
+
+		//	//거래대금조건 = 0:전체조회, 3:3천만원이상, 5:5천만원이상, 10:1억원이상, 30:3억원이상, 50:5억원이상, 100:10억원이상, 300:30억원이상, 500:50억원이상, 1000:100억원이상, 3000:300억원이상, 5000:500억원이상
+		//	theApp.m_khOpenApi.SetInputValue(L"조회일자"	,  m_LastSearchedDate);
+
+		//	theApp.m_khOpenApi.SetInputValue(L"표시구분"	,  L"0");
+		//	long lRet = theApp.m_khOpenApi.CommRqData(strRQName, strTRCode, 0, m_strScrNo);
+		//}
 	}
 }
 
@@ -184,4 +217,46 @@ void CDailyReport::SendSearch(void)
 		};
 	
 
+}
+
+
+void CDailyReport::OnBnClickedButtonMore()
+{
+	//m_RepotCtrl.DeleteAllItems();
+	// TODO: Add your control notification handler code here
+	CString strRQName = _T("일별주가요청");
+	CString strTRCode = TR_OPT10086;
+	//theApp.m_khOpenApi.SetInputValue("종목코드", "113810");
+	//계좌번호 = 전문 조회할 보유계좌번호  //51653280
+	//theApp.m_khOpenApi.SetInputValue(L"계좌번호"	,  L"8100875411");
+	//theApp.m_khOpenApi.SetInputValue("계좌번호"	,  "5165328010");
+	//비밀번호 = 사용안함(공백)
+	//시장구분 = 000:전체, 001:코스피, 101:코스닥
+	CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	theApp.m_khOpenApi.SetInputValue(L"종목코드"	,pMain->m_staticCode );
+	SYSTEMTIME stTime;
+
+	int i1,i2,i3;
+	swscanf(m_LastSearchedDate,L"%04d%02d%02d",&i1,&i2,&i3);
+	CTime nextDay(i1,i2,i3,0,0,0); //Local Time을 CTime으로 변환
+	nextDay += CTimeSpan(-1,0,0,0); //Ctime + 하루
+
+	stTime.wYear = (WORD)nextDay.GetYear();
+
+	stTime.wMonth = (WORD)nextDay.GetMonth();
+
+	stTime.wDay = (WORD)nextDay.GetDay();
+	CString strDate;
+	strDate.Format(L"%04d%02d%02d",stTime.wYear,stTime.wMonth,stTime.wDay);
+	//거래대금조건 = 0:전체조회, 3:3천만원이상, 5:5천만원이상, 10:1억원이상, 30:3억원이상, 50:5억원이상, 100:10억원이상, 300:30억원이상, 500:50억원이상, 1000:100억원이상, 3000:300억원이상, 5000:500억원이상
+	theApp.m_khOpenApi.SetInputValue(L"조회일자"	,  strDate);
+
+	theApp.m_khOpenApi.SetInputValue(L"표시구분"	,  L"0");
+	long lRet = theApp.m_khOpenApi.CommRqData(strRQName, strTRCode,1, m_strScrNo);
+	CString		strErr;
+	if (!theApp.IsError(lRet))
+	{
+		strErr.Format(_T("주식기본정보요청 에러 [%s][%d]"), strTRCode, lRet);
+		OutputDebugString(strErr);
+	};
 }
