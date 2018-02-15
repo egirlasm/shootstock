@@ -65,4 +65,6 @@ public:
 	afx_msg void OnViewPortChanged();	
 	void SendSearch(void);
 	CViewPortControl m_ViewPortControl;
+	afx_msg void OnBnClickedButtonDaily();
+	afx_msg void OnBnClickedButtonMinute();
 };

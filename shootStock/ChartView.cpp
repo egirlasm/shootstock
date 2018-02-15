@@ -73,6 +73,25 @@ const stGRID lstOPT10081[] =
 	{L"전일종가",			L"-1",	1,	12,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
 
 };
+// {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
+const stGRID lstOPT10080[] = 
+{
+	
+	{L"현재가",				L"-1",	-1,	0,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"거래량",				L"10",	0,	1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"체결시간",			L"25",	0,	2,	DT_NONE,		TRUE,	DT_CENTER,L"",L""}, 
+	{L"시가",				L"12",	0,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"고가",				L"13",	0,	4,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	{L"저가",				L"30",	0,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"수정주가구분",		L"-1",	0,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"수정비율",			L"-1",	0,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"대업종구분",			L"-1",	0,	8,	DT_DATE,		FALSE,	DT_CENTER,L"",L""}, 
+	{L"소업종구분",			L"-1",	0,	9,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,L"",L" 원"}, 
+	{L"종목정보",			L"-1",	0,	10,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L" 억"}, 
+	{L"수정주가이벤트",		L"-1",	0,	11,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	{L"전일종가",			L"-1",	1,	12,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+
+};
 
 IMPLEMENT_DYNAMIC(CChartView, CDialogEx)
 
@@ -99,6 +118,8 @@ BEGIN_MESSAGE_MAP(CChartView, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CChartView::OnBnClickedButtonAdd)
 	 ON_CONTROL(CVN_MouseMovePlotArea, IDC_CHART_VIEWER, OnMouseMovePlotArea)
 	  ON_CONTROL(CVN_ViewPortChanged, IDC_CHART_VIEWER, OnViewPortChanged)
+	  ON_BN_CLICKED(IDC_BUTTON_DAILY, &CChartView::OnBnClickedButtonDaily)
+	  ON_BN_CLICKED(IDC_BUTTON_MINUTE, &CChartView::OnBnClickedButtonMinute)
 END_MESSAGE_MAP()
 
 
@@ -116,6 +137,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 	CString strRQName = sRQName;
 	if (strRQName == _T("주식일봉차트조회요청"))			// 관심종목정보 설정
 	{
+		return;
 		CString strData;
 		CStringArray arrData;
 		
@@ -183,7 +205,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		m_volData = t_vol;
 		// Set the full x range to be the duration of the data
 		//DbgStrOutA("t_time.len = %d",t_time.len);
-		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]+1);
+		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]);
 
 		// Initialize the view port to show the latest 20% of the time range
 		m_ChartViewer.setViewPortWidth(0.2);
@@ -224,6 +246,122 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		
 		 m_ViewPortControl.setViewer(&m_ChartViewer);
 	}
+
+	if (strRQName == _T("주식분봉차트조회요청"))			// 관심종목정보 설정
+	{
+		CString strData;
+		CStringArray arrData;
+
+
+		int nFieldCnt = sizeof(lstOPT10080) / sizeof(*lstOPT10080);		// 전체크기 / 원소크기 = 원소개수
+		//m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 		CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+		// 		//pMain->m_buyList.m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 
+		// 		CReportCtrl * pListCtrl = &pMain->m_buyList.m_ListBox;
+		strRQName = _T("주식분차트");
+
+		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName,0, L"종목코드");	strData.Trim();
+		if(strData.IsEmpty()){
+			return; //종목코드가 비여있으면 차트데이터도 비여있음
+		}
+		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);
+		//nCnt = 150;
+		double * open = new double[nCnt];
+		double * high = new double[nCnt];
+		double * low = new double[nCnt];
+		double * close = new double[nCnt];
+		double * vol = new double[nCnt];
+		double * time = new double[nCnt];
+		//double open[nCnt],high[nCnt],low[nCnt],close[nCnt],vol[nCnt];
+		strRQName = _T("주식분봉차트조회");
+		for (i = 0; i <= nCnt; i++)
+		{
+			int k = nCnt - i -1;
+			for (j = 0; j < nFieldCnt; j++)
+			{
+				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstOPT10080[j].strKey);	strData.Trim();
+				if(j == 1)
+					vol[k] = _wtof(strData);
+				if(j == 2){
+					int y = _wtoi(strData.Mid(0,4));
+					int m = _wtoi(strData.Mid(4,2));
+					int d = _wtoi(strData.Mid(6,2));
+					int h = _wtoi(strData.Mid(8,2));
+					int n = _wtoi(strData.Mid(10,2));
+					int s = _wtoi(strData.Mid(12,2));
+					//DbgStrOutA("%d,%d,%d,%d,%d,%d,%0.2f,k=%d",y,m,d,h,n,s,Chart::chartTime(y,m,d,h,n,s),k);
+					time[k] = Chart::chartTime(y,m,d,h,n,s);
+				}
+
+				if(j == 3)
+					open[k] = _wtof(strData) < 0 ? _wtof(strData) * -1: _wtof(strData);
+				if(j == 4)
+					high[k] = _wtof(strData) < 0 ? _wtof(strData) * -1: _wtof(strData);
+				if(j == 5)
+					low[k] = _wtof(strData) < 0 ? _wtof(strData) * -1: _wtof(strData);
+				if(j == 0)
+					close[k] = _wtof(strData) < 0 ? _wtof(strData) * -1: _wtof(strData);
+			}
+		}
+		nCnt-=1;
+		DoubleArray t_vol(vol,nCnt);
+		DoubleArray t_open(open,nCnt);
+		DoubleArray t_high(high,nCnt);
+		DoubleArray t_low(low,nCnt);
+		DoubleArray t_close(close,nCnt);
+		DoubleArray t_time(time,nCnt);
+		//CChartView * viewer = m_ChartViewer;
+		m_timeStamps = t_time;
+		m_openData = t_open;
+		m_highData = t_high;
+		m_lowData = t_low;
+		m_closeData = t_close;
+		m_volData = t_vol;
+		// Set the full x range to be the duration of the data
+		DbgStrOutA("t_time.len = %d",t_time.len);
+		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]);
+
+		// Initialize the view port to show the latest 20% of the time range
+		m_ChartViewer.setViewPortWidth(0.2);
+
+		m_ChartViewer.setViewPortLeft(1 - m_ChartViewer.getViewPortWidth());
+
+		// Set the maximum zoom to 10 points
+		m_ChartViewer.setZoomInWidthLimit(10.0 / t_time.len);
+
+		// Initially set the mouse to drag to scroll mode.
+		//m_PointerPB.SetCheck(1);
+		m_ChartViewer.setMouseUsage(Chart::MouseUsageScroll);
+
+		// Enable mouse wheel zooming by setting the zoom ratio to 1.1 per wheel event
+		//m_ChartViewer.setMouseWheelZoomRatio(1.1);
+		m_ChartViewer.updateViewPort(true, true);
+
+		CRect r;
+		GetWindowRect(&r);
+
+		FinanceChart *c = new FinanceChart(r.Width()-50);
+		// Create an XYChart object of size 640 x 70 pixels   
+		// Disable default legend box, as we are using dynamic legend
+		c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+
+		// Set the data into the finance chart object
+		c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+
+		// Add the main chart with 240 pixels in height
+		c->addMainChart(70);
+
+		// Add candlestick symbols to the main chart, using green/red for up/down days
+		c->addCandleStick(0x00ff00, 0xff0000);
+
+		//Output the chart
+		m_ViewPortControl.setChart(c);
+		// Output the chart
+
+		m_ViewPortControl.setViewer(&m_ChartViewer);
+	}
+
 }
 //*******************************************************************/
 //! Function Name	: OnReceiveRealDataKhopenapictrl
@@ -654,12 +792,12 @@ void CChartView::drawChart(CChartViewer *viewer)
 	double viewPortStartDate = viewer->getValueAtViewPort("x", viewer->getViewPortLeft());
 	double viewPortEndDate = viewer->getValueAtViewPort("x", viewer->getViewPortLeft() +
 		viewer->getViewPortWidth());
-
+	DbgStrOutA("viewPortStartDate = %0.2f,viewPortEndDate = %0.2f",viewPortStartDate,viewPortEndDate);
 	// Get the array indexes that corresponds to the visible start and end dates
 	int startIndex = (int)floor(Chart::bSearch(m_timeStamps, viewPortStartDate));
 	int endIndex = (int)ceil(Chart::bSearch(m_timeStamps, viewPortEndDate));
 	int noOfPoints = endIndex - startIndex + 2;
-		//DbgStrOutA("startIndex = %d,endIndex = %d,noOfPoints %d",startIndex,endIndex,noOfPoints);
+		DbgStrOutA("startIndex = %d,endIndex = %d,noOfPoints %d",startIndex,endIndex,noOfPoints);
 	//	//XYChart *c = new XYChart(640, 400);
 	// Extract the part of the data array that are visible.
 	DoubleArray viewPortTimeStamps = DoubleArray(m_timeStamps.data + startIndex, noOfPoints);
@@ -1066,8 +1204,44 @@ void CChartView::SendSearch(void)
 	theApp.m_khOpenApi.SetInputValue(L"기준일자"	, t);
 
 	//비밀번호입력매체구분 = 00
-	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"0");
+	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"1");
 
 	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10081",0,m_strScrNo);
+	theApp.IsError(ret);
+}
+
+
+void CChartView::OnBnClickedButtonDaily()
+{
+	// TODO: Add your control notification handler code here
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strRQName = _T("주식일봉차트조회요청");
+	theApp.m_khOpenApi.SetInputValue(L"종목코드"	, pMain->m_boardJongmokCode);
+	CString t = COleDateTime::GetCurrentTime().Format(L"%Y%m%d");
+	//비밀번호 = 사용안함(공백)
+	theApp.m_khOpenApi.SetInputValue(L"기준일자"	, t);
+
+	//비밀번호입력매체구분 = 00
+	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"1");
+
+	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10081",0,m_strScrNo);
+	theApp.IsError(ret);
+}
+
+
+void CChartView::OnBnClickedButtonMinute()
+{
+	// TODO: Add your control notification handler code here
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strRQName = _T("주식분봉차트조회요청");
+	theApp.m_khOpenApi.SetInputValue(L"종목코드"	, pMain->m_boardJongmokCode);
+	
+	//비밀번호 = 사용안함(공백)
+	theApp.m_khOpenApi.SetInputValue(L"틱범위"	, L"3");
+
+	//비밀번호입력매체구분 = 00
+	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"1");
+
+	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10080",0,m_strScrNo);
 	theApp.IsError(ret);
 }
