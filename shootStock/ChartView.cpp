@@ -141,7 +141,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		double * vol = new double[nCnt];
 		double * time = new double[nCnt];
 		//double open[nCnt],high[nCnt],low[nCnt],close[nCnt],vol[nCnt];
-		for (i = 0; i < nCnt; i++)
+		for (i = 0; i <= nCnt; i++)
 		{
 			int k = nCnt - i -1;
 			for (j = 0; j < nFieldCnt; j++)
@@ -182,8 +182,8 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		m_closeData = t_close;
 		m_volData = t_vol;
 		// Set the full x range to be the duration of the data
-		DbgStrOutA("t_time.len = %d",t_time.len);
-		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]);
+		//DbgStrOutA("t_time.len = %d",t_time.len);
+		m_ChartViewer.setFullRange("x", t_time[0], t_time[t_time.len]+1);
 
 		// Initialize the view port to show the latest 20% of the time range
 		m_ChartViewer.setViewPortWidth(0.2);
@@ -658,8 +658,8 @@ void CChartView::drawChart(CChartViewer *viewer)
 	// Get the array indexes that corresponds to the visible start and end dates
 	int startIndex = (int)floor(Chart::bSearch(m_timeStamps, viewPortStartDate));
 	int endIndex = (int)ceil(Chart::bSearch(m_timeStamps, viewPortEndDate));
-	int noOfPoints = endIndex - startIndex + 1;
-		DbgStrOutA("startIndex = %d,endIndex = %d,noOfPoints %d",startIndex,endIndex,noOfPoints);
+	int noOfPoints = endIndex - startIndex + 2;
+		//DbgStrOutA("startIndex = %d,endIndex = %d,noOfPoints %d",startIndex,endIndex,noOfPoints);
 	//	//XYChart *c = new XYChart(640, 400);
 	// Extract the part of the data array that are visible.
 	DoubleArray viewPortTimeStamps = DoubleArray(m_timeStamps.data + startIndex, noOfPoints);
