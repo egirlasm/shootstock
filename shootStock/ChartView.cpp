@@ -201,25 +201,25 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 		//m_ChartViewer.setMouseWheelZoomRatio(1.1);
 		m_ChartViewer.updateViewPort(true, true);
 
-// 		CRect r;
-// 		GetWindowRect(&r);
-// 
-// 		FinanceChart *c = new FinanceChart(r.Width()-50);
-// 		// Create an XYChart object of size 640 x 70 pixels   
-// 		// Disable default legend box, as we are using dynamic legend
-// 		c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
-// 
-// 		// Set the data into the finance chart object
-// 		c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
-// 
-// 		// Add the main chart with 240 pixels in height
-// 		c->addMainChart(70);
-// 
-// 		// Add candlestick symbols to the main chart, using green/red for up/down days
-// 		c->addCandleStick(0x00ff00, 0xff0000);
+ 		CRect r;
+ 		GetWindowRect(&r);
+ 
+ 		FinanceChart *c = new FinanceChart(r.Width()-50);
+ 		// Create an XYChart object of size 640 x 70 pixels   
+ 		// Disable default legend box, as we are using dynamic legend
+ 		c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+ 
+ 		// Set the data into the finance chart object
+ 		c->setData(m_timeStamps, m_highData, m_lowData, m_openData, m_closeData, m_volData, 30);
+ 
+ 		// Add the main chart with 240 pixels in height
+ 		c->addMainChart(70);
+ 
+ 		// Add candlestick symbols to the main chart, using green/red for up/down days
+ 		c->addCandleStick(0x00ff00, 0xff0000);
 
-		// Output the chart
-		//m_ViewPortControl.setChart(c);
+		 //Output the chart
+		m_ViewPortControl.setChart(c);
 		// Output the chart
 		
 		 m_ViewPortControl.setViewer(&m_ChartViewer);
@@ -659,24 +659,41 @@ void CChartView::drawChart(CChartViewer *viewer)
 	int startIndex = (int)floor(Chart::bSearch(m_timeStamps, viewPortStartDate));
 	int endIndex = (int)ceil(Chart::bSearch(m_timeStamps, viewPortEndDate));
 	int noOfPoints = endIndex - startIndex + 1;
-
+		DbgStrOutA("startIndex = %d,endIndex = %d,noOfPoints %d",startIndex,endIndex,noOfPoints);
+	//	//XYChart *c = new XYChart(640, 400);
 	// Extract the part of the data array that are visible.
 	DoubleArray viewPortTimeStamps = DoubleArray(m_timeStamps.data + startIndex, noOfPoints);
 	DoubleArray viewPortDataSeriesA = DoubleArray(m_openData.data + startIndex, noOfPoints);
 	DoubleArray viewPortDataSeriesB = DoubleArray(m_closeData.data + startIndex, noOfPoints);
 	DoubleArray viewPortDataSeriesC = DoubleArray(m_highData.data + startIndex, noOfPoints);
 	DoubleArray viewPortDataSeriesD = DoubleArray(m_lowData.data + startIndex, noOfPoints);
+	DoubleArray viewPortDataSeriesE = DoubleArray(m_volData.data + startIndex, noOfPoints);
 	//
 	// At this stage, we have extracted the visible data. We can use those data to plot the chart.
 	//
+	FinanceChart *c = new FinanceChart(r.Width()-50);
 
+	// Add a title to the chart
+	c->addTitle("Finance Chart Demonstration");
+
+	// Disable default legend box, as we are using dynamic legend
+	//c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
+
+	// Set the data into the finance chart object
+	c->setData(viewPortTimeStamps, viewPortDataSeriesC, viewPortDataSeriesD, viewPortDataSeriesA, viewPortDataSeriesB, viewPortDataSeriesE, 30);
+
+	// Add the main chart with 240 pixels in height
+	c->addMainChart(r.Height()-350);
+	 c->addCandleStick(0xff0000,0x0000ff);
+	 c->addVolBars(75, 0xff0000, 0x0000ff, 0x808080);
+	 trackFinance(c, ((XYChart *)c->getChart(0))->getPlotArea()->getRightX());
 	///////////////////////////////////////////////////////////////////////////////////////
 	// Configure overall chart appearance. 
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	// Create an XYChart object of size 650 x 350 pixels, with a white (ffffff) background and grey 
 	// (aaaaaa) border
-	XYChart *c = new XYChart(r.Width()-50, r.Height()-350, 0xffffff, 0xaaaaaa);
+	//XYChart *c = new XYChart(r.Width()-50, r.Height()-350, 0xffffff, 0xaaaaaa);
 
 	// Set the plotarea at (55, 55) with width 90 pixels less than chart width, and height 90 pixels
 	// less than chart height. Use a vertical gradient from light blue (f0f6ff) to sky blue (a0c0ff)
@@ -701,7 +718,6 @@ void CChartView::drawChart(CChartViewer *viewer)
 
 	//// Add axis title using 10pts Arial Bold Italic font
 	//c->yAxis()->setTitle("Ionic Temperature (C)", "arialbi.ttf", 10);
-	   c->setYAxisOnRight(true);
 
 	///////////////////////////////////////////////////////////////////////////////////////
 	// Add data to chart
@@ -709,18 +725,20 @@ void CChartView::drawChart(CChartViewer *viewer)
 		//CRect r;
 		//GetWindowRect(&r);
 		//XYChart *c = new XYChart(r.Width()-50, r.Height()-350);
-	c->setPlotArea(25, 25, c->getWidth() - 90, c->getHeight() - 90)->setGridColor(0xc0c0c0, 0xc0c0c0);
-
 	
-		CandleStickLayer *layer = c->addCandleStickLayer(viewPortDataSeriesC, viewPortDataSeriesD,
-			viewPortDataSeriesA,viewPortDataSeriesB, 0xff0000,0x0000ff);
+	
+	/*	CandleStickLayer *layer = c->addCandleStickLayer(viewPortDataSeriesC, viewPortDataSeriesD,
+			viewPortDataSeriesA,viewPortDataSeriesB, 0x0000ff, 0xff0000);*/
 
 		
 	
 		// Set the line width to 2 pixels
-		layer->setLineWidth(1);
-		
-
+		//layer->setLineWidth(2);
+		//c->addBarLayer(viewPortDataSeriesE, 0x00c000
+		//	)->setUseYAxis2();
+		// c->xAxis()->setDateScale(m_timeStamps.data[startIndex],m_timeStamps.data[startIndex + noOfPoints]);
+		////c->xAxis()->
+		// c->xAxis()->setLabelFormat("{value|yy/mm}");
 	// 
 	// In this example, we represent the data by lines. You may modify the code below to use other
 	// representations (areas, scatter plot, etc).
@@ -1034,8 +1052,8 @@ void CChartView::OnBnClickedButtonAdd()
 //
 void CChartView::OnMouseMovePlotArea()
 {
-	//trackFinance((MultiChart *)m_ChartViewer.getChart(), m_ChartViewer.getPlotAreaMouseX());
-	//m_ChartViewer.updateDisplay();
+	trackFinance((MultiChart *)m_ChartViewer.getChart(), m_ChartViewer.getPlotAreaMouseX());
+	m_ChartViewer.updateDisplay();
 }
 
 void CChartView::SendSearch(void)
@@ -1048,7 +1066,7 @@ void CChartView::SendSearch(void)
 	theApp.m_khOpenApi.SetInputValue(L"기준일자"	, t);
 
 	//비밀번호입력매체구분 = 00
-	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"1");
+	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"0");
 
 	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10081",0,m_strScrNo);
 	theApp.IsError(ret);
