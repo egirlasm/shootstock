@@ -137,7 +137,7 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 	CString strRQName = sRQName;
 	if (strRQName == _T("주식일봉차트조회요청"))			// 관심종목정보 설정
 	{
-		return;
+		//return;
 		CString strData;
 		CStringArray arrData;
 		
@@ -1213,6 +1213,7 @@ void CChartView::SendSearch(void)
 
 void CChartView::OnBnClickedButtonDaily()
 {
+	//delete m_ChartViewer.getChart();
 	// TODO: Add your control notification handler code here
 	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
 	CString strRQName = _T("주식일봉차트조회요청");
@@ -1231,6 +1232,7 @@ void CChartView::OnBnClickedButtonDaily()
 
 void CChartView::OnBnClickedButtonMinute()
 {
+	//delete m_ChartViewer.getChart();
 	// TODO: Add your control notification handler code here
 	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
 	CString strRQName = _T("주식분봉차트조회요청");
