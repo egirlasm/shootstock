@@ -652,6 +652,42 @@ void CshootStockDlg::OnReceiveMsgKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, 
 		CString strData;
 		strData.Format(_T("[%s] [%s] 오류"), sRQName, sTrCode);
 
+		CString strErrMsg = sMsg;
+		if(strErrMsg.Find(_T("비밀번호")) != -1 && strErrMsg.Find(_T("오류")) != -1){
+			::MessageBox(m_hWnd,_T("비밀번호 오류! 5번 오류시 큰일남,제대로 입력하자!"),_T("비밀번호 오류!"),MB_ICONERROR);
+
+			theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
+
+			theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+			long lRet = theApp.m_khOpenApi.CommRqData(L"계좌평가잔고내역요청", L"OPW00018", 0, m_strScrNo);
+			if (!theApp.IsError(lRet))
+			{
+			}
+			//return;
+		}
+
+		if(!theApp.g_is_password_success && strErrMsg.Find(_T("조회")) != -1 && strErrMsg.Find(_T("완료")) != -1){
+			theApp.g_is_password_success = true;
+
+			m_buyList.GetDataSearch();
+			//수익률계산 조회 //8100875411
+			//계좌번호 = 전문 조회할 보유계좌번호
+			theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+
+			//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+				//SetInputValue("체결구분"	,  "1");
+			theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+			//매매구분 = 0:전체, 1:매도, 2:매수
+				//SetInputValue("매매구분"	,  "");
+			theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+
+			LONG lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+			if (!theApp.IsError(lRet))
+			{
+			}
+		}
+
 		CString strRQName = strRQ.Mid(4);
 		switch (_wtoi(strScrType))
 		{
@@ -659,6 +695,7 @@ void CshootStockDlg::OnReceiveMsgKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, 
 			{
 				//((CCurrentPriceDlg *)pWnd)->OnReceiveMsgKhopenapictrl(sScrNo, strRQName, sTrCode, sMsg);
 				//pWnd->MessageBox(sMsg, strData, MB_ICONERROR | MB_OK);
+				//+		sMsg	0x08dabe0c "[850188] 비밀번호 2회 오류, 5회 오류시 비밀번호 재등록(문의1544-9000)"	const wchar_t *
 				TraceOutputW(sMsg);
 			}
 			break;
@@ -1403,7 +1440,7 @@ void CshootStockDlg::OnEventConnect(LONG nItemCnt)
 
 
 		this->OnBtnGetAccData();
-		m_buyList.GetDataSearch();
+		//m_buyList.GetDataSearch();
 		//수익률계산 조회 //8100875411
 
 		theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
@@ -1412,19 +1449,19 @@ void CshootStockDlg::OnEventConnect(LONG nItemCnt)
 		{
 		}
 		//계좌번호 = 전문 조회할 보유계좌번호
-		theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+		//theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
 
-		//체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
-			//SetInputValue("체결구분"	,  "1");
-		theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
-		//매매구분 = 0:전체, 1:매도, 2:매수
-			//SetInputValue("매매구분"	,  "");
-		theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
+		////체결구분 = 0:체결+미체결조회, 1:미체결조회, 2:체결조회
+		//	//SetInputValue("체결구분"	,  "1");
+		//theApp.m_khOpenApi.SetInputValue(L"체결구분", L"1");
+		////매매구분 = 0:전체, 1:매도, 2:매수
+		//	//SetInputValue("매매구분"	,  "");
+		//theApp.m_khOpenApi.SetInputValue(L"매매구분", L"0");
 
-		lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
-		if (!theApp.IsError(lRet))
-		{
-		}
+		//lRet = theApp.m_khOpenApi.CommRqData(L"실시간미체결요청", L"OPT10075", 0, m_strScrNo);
+		//if (!theApp.IsError(lRet))
+		//{
+		//}
 
 
 
@@ -1532,7 +1569,7 @@ void CshootStockDlg::OnBtnGetAccData(void)
 	CString   strSafeKeyStatus = theApp.m_khOpenApi.GetLoginInfo(L"KEY_BSECGB" );
 
 	//HWND pWnd = ::FindWindow(NULL,L"계좌비밀번호 입력 (버전: 3.72)");
-	CWnd *pWnd = FindWindowEx(this->m_hWnd,NULL,NULL,L"계좌비밀번호 입력 (버전: 3.72)");
+	//CWnd *pWnd = FindWindowEx(this->m_hWnd,NULL,NULL,L"계좌비밀번호 입력 (버전: 3.72)");
 	//FindWindowEx(this)	::SetWindowPos (pWnd,NULL,0,0,0,0,SWP_SHOWWINDOW);
 	CString strServerType =  theApp.m_khOpenApi.KOA_Functions(_T("GetServerGubun"), _T(""));
 	if(strServerType == L"1"){//모의투자

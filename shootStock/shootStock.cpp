@@ -21,7 +21,8 @@ END_MESSAGE_MAP()
 // CshootStockApp 생성
 
 CshootStockApp::CshootStockApp()
-	: g_MyMoney(500000)
+	: g_MyMoney(90000)
+	, g_is_password_success(false)
 {
 	// 다시 시작 관리자 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;

@@ -87,6 +87,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 public:
 	int g_MyMoney;
+	bool g_is_password_success;
 };
 
 extern CshootStockApp theApp;
