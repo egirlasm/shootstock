@@ -1175,7 +1175,7 @@ void CChartView::trackFinance(MultiChart *m, int mouseX)
 
         // Display the legend on the top of the plot area
         TTFText *t = d->text(legendText.str().c_str(), "arial.ttf", 8);
-        t->draw(plotAreaLeftX + 5, plotAreaTopY + 3, 0x000000, Chart::TopLeft);
+        t->draw(plotAreaLeftX + 5, plotAreaTopY + 20, 0x000000, Chart::TopLeft);
 		t->destroy();
     }
 }

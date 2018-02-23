@@ -466,6 +466,7 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);	//데이터 건수
 		m_nCount = nCnt;	//데이터 건수에 그리드 헤더 추가
 		CString strIndex= L"";
+		m_mapJongCode.RemoveAll();
 		for (i = 0; i < nCnt; i++)
 		{
 			
