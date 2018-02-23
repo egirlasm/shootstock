@@ -171,4 +171,8 @@ public:
 	// //수동으로 취소한건지 자동으로 취소 된건지
 	bool isManual;
 	bool isStockMarketOpen;
+	CString m_staticHigh;
+	CString m_staticLow;
+	CString m_staticSales;
+	CString m_staticProfit;
 };

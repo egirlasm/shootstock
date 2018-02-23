@@ -223,6 +223,10 @@ CshootStockDlg::CshootStockDlg(CWnd* pParent /*=NULL*/)
 	//, m_boughtCount(0)
 	, isManual(false)
 	, isStockMarketOpen(false)
+	, m_staticHigh(_T(""))
+	, m_staticLow(_T(""))
+	, m_staticSales(_T(""))
+	, m_staticProfit(_T(""))
 {
 	m_nRet = 0;
 	m_nScrN0 = 0;
@@ -244,6 +248,10 @@ void CshootStockDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_STATIC_NAME, m_staticName);
 	DDX_Text(pDX, IDC_STATIC_PRICE, m_staticPrice);
 	DDX_Control(pDX, IDC_CONCLUDE_LIST, m_ConcludeList);
+	DDX_Text(pDX, IDC_STATIC_HIGH, m_staticHigh);
+	DDX_Text(pDX, IDC_STATIC_LOW, m_staticLow);
+	DDX_Text(pDX, IDC_STATIC_SHELL, m_staticSales);
+	DDX_Text(pDX, IDC_STATIC_INCOME, m_staticProfit);
 }
 
 BEGIN_MESSAGE_MAP(CshootStockDlg, CDialogEx)
@@ -314,6 +322,19 @@ BOOL CshootStockDlg::OnInitDialog()
 	GetDlgItem(IDC_STATIC_NAME)->SetFont(&fnt);
 	GetDlgItem(IDC_STATIC_PRICE)->SetFont(&fnt);
 	fnt.Detach();
+
+	::ZeroMemory(&lf, sizeof(lf));
+	lf.lfHeight = 15;
+	lf.lfWeight = FW_NORMAL;
+	::lstrcpy(lf.lfFaceName, (LPCWSTR)"맑은고딕");
+	fnt.CreateFontIndirect(&lf);
+	GetDlgItem(IDC_STATIC_HIGH)->SetFont(&fnt);
+	GetDlgItem(IDC_STATIC_LOW)->SetFont(&fnt);
+	GetDlgItem(IDC_STATIC_SHELL)->SetFont(&fnt);
+	GetDlgItem(IDC_STATIC_INCOME)->SetFont(&fnt);
+	fnt.Detach();
+
+
 
 	theApp.m_khOpenApi.CommConnect();
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -448,6 +469,17 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 					m_staticName =   theApp.m_khOpenApi.GetMasterCodeName(strData);
 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"현재가");	strData.Trim();
 					m_staticPrice = strData;
+					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250최고");	strData.Trim();
+					m_staticHigh = strData;
+					m_staticHigh = L"50주최고:"+m_staticHigh.Mid(1,m_staticHigh.GetLength() -1);
+					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250최저");	strData.Trim();
+					m_staticLow = strData;
+					m_staticLow = L"50주최저:"+m_staticLow.Mid(1,m_staticLow.GetLength() -1);
+					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"매출액");	strData.Trim();
+					m_staticSales = L"매출액:"+strData;
+					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"영업이익");	strData.Trim();
+					m_staticProfit = L"영업이익:"+strData;
+			
 					//TraceOutputW(strData);
 					UpdateData(FALSE);
 				}
