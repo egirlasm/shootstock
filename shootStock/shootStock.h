@@ -65,7 +65,46 @@ typedef struct
 	CString	strAfterData;		// 문자열 뒤 문자 넣기
 } stGRID;
 
+#include <tchar.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+	void DbgStrOutW(const wchar_t *fmt, ...);
+	void DbgStrOutA(const char *fmt, ...);
+#ifdef __cplusplus
+}
+#endif
+//#ifdef _DEBUG
+#define _TraceA  DbgStrOutA
+//#else
+//#define _TraceA
+//#endif
 
+
+//#ifdef _DEBUG
+#define _Trace  DbgStrOutW
+//#else
+//define _Trace
+//#endif
+
+const stGRID lstOPTKWFID[] = 
+{
+
+	{L"종목코드",		L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"종목명",			L"-1",	-1,	2,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"현재가",			L"0",	-1,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"전일대비기호",	L"10",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
+	{L"등락율",			L"2",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
+	{L"거래량",			L"5",	-1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
+	{L"시가",			L"16",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"고가",			L"17",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"저가",			L"18",	-1,	8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"종가",			L"18",	-1,9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매수호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"매도호가",			L"18",	-1,	11,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	/*{L"매수호가",		L"0",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
+	{L"전일거래량대비",	L"13",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
+};
 // CshootStockApp:
 // 이 클래스의 구현에 대해서는 shootStock.cpp을 참조하십시오.
 //

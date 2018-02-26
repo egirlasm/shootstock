@@ -56,4 +56,6 @@ public:
 	afx_msg void OnBnClickedButtonSave();
 	string m_szPath;
 	CString m_curDate;
+	afx_msg void OnBnClickedButtonInfo();
+	int m_normalQueryIndex;
 };

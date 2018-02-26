@@ -116,13 +116,23 @@ void CIncome::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCT
 		// 		//pMain->m_buyList.m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
 		// 
 		// 		CReportCtrl * pListCtrl = &pMain->m_buyList.m_ListBox;
+
+
 		strRQName = _T("일자별실현손익단일");
 		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"실현손익");	strData.Trim();
+	/*	SetDlgItemText(IDC_STATIC1,strData);
+*/
+		::ShowWindow(::GetDlgItem(m_hWnd,IDC_STATIC1),SW_HIDE);
 		SetDlgItemText(IDC_STATIC1,strData);
+		::ShowWindow(::GetDlgItem(m_hWnd,IDC_STATIC1),SW_SHOW);
+
 		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"매매수수료");	strData.Trim();
 		SetDlgItemText(IDC_STATIC2,strData);
 		strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"매매세금");	strData.Trim();
 		SetDlgItemText(IDC_STATIC3,strData);
+
+
+	
 
 		strRQName = _T("일자별실현손익");
 		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);

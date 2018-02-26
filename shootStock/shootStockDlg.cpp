@@ -263,6 +263,7 @@ BEGIN_MESSAGE_MAP(CshootStockDlg, CDialogEx)
 
 	ON_COMMAND(ID_LIST_SEARCH, &CshootStockDlg::OnListSearch)
 	
+	ON_NOTIFY(NM_DBLCLK, IDC_DEAL_LIST, &CshootStockDlg::OnNMDblclkDealList)
 END_MESSAGE_MAP()
 
 
@@ -2141,3 +2142,55 @@ BOOL CshootStockDlg::PreTranslateMessage(MSG* pMsg)
 
 
 
+
+
+void CshootStockDlg::OnNMDblclkDealList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: Add your control notification handler code here
+
+	CString strRQName = _T("주식주문");
+	CString strJongCode = L"";
+	CString nowPrice = L"";
+	CString strOrderNo = L"";
+	for(int i=0; i<m_dealList.GetItemCount(); i++)
+	{
+		if( m_dealList.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED )
+		{
+			strJongCode = m_dealList.GetItemText(i,0);
+
+			//	CString strKey, strScrType;
+			//POSITION pos = m_mapOrderNo.GetStartPosition();
+			//while (pos != NULL)
+			//{
+			//	strOrderNo= L"";
+			//	m_mapOrderNo.GetNextAssoc(pos, strKey, strScrType);
+			//	m_mapOrderNo.Lookup(strKey, strOrderNo);
+			//}
+			CSubject *subject = new CSubject();
+			if(m_checkedSubject.Lookup(strJongCode,(CObject*&)subject) ){
+				if (m_mapOrderNo.Lookup(strJongCode, strOrderNo))
+				{
+					CString strRQName = _T("주식주문"); //일단 매도 취소
+					LONG lRet = theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo,m_AccNo, 4, strJongCode,subject->get_count(), 0, L"00",strOrderNo);
+					subject->set_status(true);
+				}else{
+					//걸어놓은 미체결이 없으니 바로 매도 함
+					_Trace(L"걸어놓은 주식이 없어 바로 매도함///개발미완성/모니터링 정지 고민");
+				}
+				//m_checkedSubject.SetAt(strJongCode,subject);
+			}
+
+
+			//if(m_mapOrderNo.Lookup(strJongCode,strOrderNo)){
+			//	theApp.m_khOpenApi.SendOrder(strRQName,m_strScrNo, m_AccNo, 4, strJongCode, 0, 0, L"00",strOrderNo);
+			//	subject->set_status(true);
+			//	m_checkedSubject.SetAt(sJongmokCode,subject);
+			//	isManual = true;
+			//}
+
+		}
+	}
+
+	*pResult = 0;
+}

@@ -175,4 +175,5 @@ public:
 	CString m_staticLow;
 	CString m_staticSales;
 	CString m_staticProfit;
+	afx_msg void OnNMDblclkDealList(NMHDR *pNMHDR, LRESULT *pResult);
 };

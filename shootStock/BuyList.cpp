@@ -11,24 +11,7 @@
 const CString m_strRealSet = L"주식시세;주식체결;주식예상체결";
 
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
-const stGRID lstOPTKWFID[] = 
-{
 
-	{L"종목코드",		L"-1",	-1,	1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"종목명",			L"-1",	-1,	2,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
-	{L"현재가",			L"0",	-1,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
-	{L"전일대비기호",	L"10",	-1,	-1,	DT_SIGN,		TRUE,	DT_CENTER,	L"",	L""}, 
-	{L"등락율",			L"2",	-1,	4,	DT_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, 
-	{L"거래량",			L"5",	-1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	L"",	L""}, 
-	{L"시가",			L"16",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"고가",			L"17",	-1,	7,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"저가",			L"18",	-1,	8,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"종가",			L"18",	-1,9,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매수호가",			L"18",	-1,	10,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"매도호가",			L"18",	-1,	11,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	/*{L"매수호가",		L"0",	-1,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""},
-	{L"전일거래량대비",	L"13",	-1,	6,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L"%"}, */
-};
 
 // 실시간 주문체결(현재가 표시용)
 const stGRID lstOPTKWFID_B[] = 
@@ -156,7 +139,7 @@ void CBuyList::SendJongSearch(int nCodeCount/* = 0*/, CString strCodeList/* = ""
 	if (nCodeCount > 0 && strCodeList.GetLength() > 0)
 	{
 		CString strRQName = _T("관심종목");
-		long lRet = theApp.m_khOpenApi.CommKwRqData(strCodeList, 0, nCodeCount, nAddType, strRQName, m_strScrNo);
+		long lRet = theApp.m_khOpenApi.CommKwRqData(strCodeList, 0, nCodeCount, 0, strRQName, m_strScrNo);
 		if (!theApp.IsError(lRet))
 		{
 			return;
@@ -644,9 +627,20 @@ BOOL CBuyList::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: Add your specialized code here and/or call the base class
 	if(pMsg->message==WM_KEYDOWN   &&   pMsg->wParam==VK_ESCAPE)   
+	{
+		m_SearchComboList.SetWindowText(L"");
+		m_SearchComboList.SetFocus();
 		return TRUE;
-	if(pMsg->message==WM_KEYDOWN   &&   pMsg->wParam==VK_RETURN)   
-		return TRUE;
+	}
+		
+	if(pMsg->message==WM_KEYDOWN   &&   pMsg->wParam==VK_RETURN)   {
+
+			
+				OnBnClickedButtonSearch();
+
+			return TRUE;
+	}
+		
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
 void CBuyList::OnBnClickedButtonSellall()
@@ -730,7 +724,7 @@ void CBuyList::OnBnClickedOrder1()
 	//pMain->m_boughtCount = buyCount;
 
 
-
+	pMain->m_sellPercentage = 1.3;
 	//pMain->m_checkedSubject.SetAt(strJongCode,)
 
 	CString fmt;
@@ -746,12 +740,82 @@ void CBuyList::OnBnClickedOrder1()
 void CBuyList::OnBnClickedOrder2()
 {
 	// TODO: Add your control notification handler code here
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strJongCode = L"";
+	CString nowPrice = L"";
+	for(int i=0; i<m_ListBox.GetItemCount(); i++)
+	{
+		if( m_ListBox.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED )
+		{
+
+			strJongCode = m_ListBox.GetItemText(i,1);
+			nowPrice = m_ListBox.GetItemText(i,3);
+
+			//AfxMessageBox(strText);
+		}
+	}
+	if(!theApp.g_MyMoney){
+		AfxMessageBox(L"you have no money or not input the password dammit! fuck!");
+		return;
+	}
+	CString strRQName = _T("주식주문");
+	long lRet;
+	nowPrice.Replace(L",",L"");
+	int buyCount = theApp.g_MyMoney / _wtoi(nowPrice) -1;
+	//pMain->m_boughtCount = buyCount;
+
+
+	pMain->m_sellPercentage = 2;
+	//pMain->m_checkedSubject.SetAt(strJongCode,)
+
+	CString fmt;
+	fmt.Format(L"주식종목 %s ,주식가능수 %d, 주식 현재가 %s",strJongCode,buyCount,nowPrice);
+	pMain->TraceOutputW(fmt);
+	CSubject * subject =new CSubject;
+	subject->set_total(buyCount);
+	pMain->m_checkedSubject.SetAt(strJongCode,subject);
+	lRet = theApp.m_khOpenApi.SendOrder(strRQName, pMain->m_strScrNo,pMain->m_AccNo, 1, strJongCode, buyCount, 0, L"03", L"");
 }
 
 
 void CBuyList::OnBnClickedOrder3()
 {
 	// TODO: Add your control notification handler code here
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	CString strJongCode = L"";
+	CString nowPrice = L"";
+	for(int i=0; i<m_ListBox.GetItemCount(); i++)
+	{
+		if( m_ListBox.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED )
+		{
+
+			strJongCode = m_ListBox.GetItemText(i,1);
+			nowPrice = m_ListBox.GetItemText(i,3);
+
+			//AfxMessageBox(strText);
+		}
+	}
+	if(!theApp.g_MyMoney){
+		AfxMessageBox(L"you have no money or not input the password dammit! fuck!");
+		return;
+	}
+	CString strRQName = _T("주식주문");
+	long lRet;
+	nowPrice.Replace(L",",L"");
+	int buyCount = theApp.g_MyMoney / _wtoi(nowPrice) -1;
+	//pMain->m_boughtCount = buyCount;
+
+
+	pMain->m_sellPercentage = 3;
+	//pMain->m_checkedSubject.SetAt(strJongCode,)
+
+	CString fmt;
+	fmt.Format(L"주식종목 %s ,주식가능수 %d, 주식 현재가 %s",strJongCode,buyCount,nowPrice);
+	pMain->TraceOutputW(fmt);
+	CSubject * subject =new CSubject;
+	subject->set_total(buyCount);
+	pMain->m_checkedSubject.SetAt(strJongCode,subject);
+	lRet = theApp.m_khOpenApi.SendOrder(strRQName, pMain->m_strScrNo,pMain->m_AccNo, 1, strJongCode, buyCount, 0, L"03", L"");
 }
 
 

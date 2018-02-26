@@ -5,11 +5,63 @@
 #include "stdafx.h"
 #include "shootStock.h"
 #include "shootStockDlg.h"
-
+#include <strsafe.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+#define OUTPUT_BUFF_LEN 51200 
+
+
+void DbgStrOutW(const wchar_t *fmt, ...)
+{
+	wchar_t szOutStr[OUTPUT_BUFF_LEN];
+
+	va_list ap;
+	va_start(ap, fmt);
+	StringCbVPrintfW(szOutStr, OUTPUT_BUFF_LEN, fmt, ap);
+	va_end(ap);
+	//LOG(INFO) << szOutStr;
+
+
+
+
+	HWND hWnd = FindWindowA(NULL, "Trace");
+	if (hWnd)
+	{
+		COPYDATASTRUCT pCopy;
+		memset(&pCopy, 0, sizeof(COPYDATASTRUCT));
+		pCopy.cbData = 51200;
+		pCopy.lpData = szOutStr;
+		pCopy.dwData = 1;
+		SendMessage(hWnd, WM_COPYDATA, 0, (LPARAM)&pCopy);
+	}
+
+	//OutputDebugString(szOutStr);
+}
+
+void DbgStrOutA(const char *fmt, ...)
+{
+	char szOutStr[OUTPUT_BUFF_LEN];
+	va_list ap;
+	va_start(ap, fmt);
+	StringCbVPrintfA(szOutStr, OUTPUT_BUFF_LEN, fmt, ap);
+	va_end(ap);
+
+
+	//LOG(INFO) << szOutStr;
+	HWND hWnd = FindWindowA(NULL, "Trace");
+	if (hWnd)
+	{
+		COPYDATASTRUCT pCopy;
+		memset(&pCopy, 0, sizeof(COPYDATASTRUCT));
+		pCopy.cbData = strlen(szOutStr) + 1;
+		pCopy.lpData = szOutStr;
+		pCopy.dwData = 0;
+		SendMessage(hWnd, WM_COPYDATA, 0, (LPARAM)&pCopy);
+	}
+	//OutputDebugStringA(szOutStr);
+}
 
 // CshootStockApp
 
@@ -21,7 +73,7 @@ END_MESSAGE_MAP()
 // CshootStockApp 생성
 
 CshootStockApp::CshootStockApp()
-	: g_MyMoney(90000)
+	: g_MyMoney(400000)
 	, g_is_password_success(false)
 {
 	// 다시 시작 관리자 지원

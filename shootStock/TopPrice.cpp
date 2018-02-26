@@ -31,6 +31,7 @@ IMPLEMENT_DYNAMIC(CTopPrice, CDialogEx)
 CTopPrice::CTopPrice(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTopPrice::IDD, pParent)
 	, m_curDate(_T(""))
+	, m_normalQueryIndex(0)
 {
 	
 }
@@ -53,6 +54,7 @@ BEGIN_MESSAGE_MAP(CTopPrice, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_PREV, &CTopPrice::OnBnClickedButtonPrev)
 	ON_BN_CLICKED(IDC_BUTTON_NEXT, &CTopPrice::OnBnClickedButtonNext)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CTopPrice::OnBnClickedButtonSave)
+	ON_BN_CLICKED(IDC_BUTTON_INFO, &CTopPrice::OnBnClickedButtonInfo)
 END_MESSAGE_MAP()
 
 
@@ -82,8 +84,8 @@ void CTopPrice::InitList(void)
 
 	m_TopList.InsertColumn(3,L"등락률",0,150);
 	m_TopList.InsertColumn(4,L"거래량",0,150);
-	m_TopList.InsertColumn(5,L"매수호가",0,100);
-	m_TopList.InsertColumn(6,L"거래량대비",0,150);
+	m_TopList.InsertColumn(5,L"연중최고",0,100);
+	m_TopList.InsertColumn(6,L"연중최저",0,150);
 }
 
 //*******************************************************************/
@@ -96,13 +98,16 @@ void CTopPrice::InitList(void)
 //******************************************************************/
 void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg)
 {
-	m_TopList.SetRedraw(FALSE);
+	
 	CString strRQName = sRQName;
 	if (strRQName == _T("전일대비등락률상위요청"))		// +		strRQName	"전일대비등락률상위요청 "	ATL::CStringT<char,StrTraitMFC_DLL<char,ATL::ChTraitsCRT<char> > >
 
 	{
+		m_TopList.SetRedraw(FALSE);
 		CString strData;
 		CStringArray arrData;
+		CString strCodeList =L"";
+
 		int nFieldCnt = sizeof(lstOPT10027) / sizeof(*lstOPT10027);;		// 전체크기 / 원소크기 = 원소개수
 
 		strRQName = _T("전일대비등락률상위");
@@ -122,16 +127,24 @@ void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LP
 				
 				//종목코드 추가
 				if(j == 1){
-					CString strCode = strData, strIndex;
-					strIndex.Format(L"%d", i);
-					m_mapJongCode.SetAt(strCode, strIndex);
+					
 					m_ArrTopdata[i].strCode = strData;
+					CString temp =strData+ ";";
+					strCodeList += temp;
+					
 				}
 			}
 			if(!arrData.GetAt(1).IsEmpty()){
 				int dwCount = m_TopList.GetItemCount();
 
 				int dwitem = m_TopList.InsertItem(dwCount,arrData.GetAt(1),0);
+
+				//CString strCode = strData, strIndex;
+				//strIndex.Format(L"%d", dwitem+1);
+				//m_mapJongCode.SetAt(arrData.GetAt(1), strIndex);
+
+				//theApp.m_khOpenApi.SetInputValue(L"종목코드",arrData.GetAt(1));
+				//theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,m_strScrNo);
 
 				m_TopList.SetItem(dwitem,1,1,arrData.GetAt(2),0,0,0,0);
 				m_TopList.SetItem(dwitem,2,1,arrData.GetAt(3),0,0,0,0);
@@ -153,11 +166,99 @@ void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LP
 
 
 
+		m_TopList.SetRedraw();
 
-
+		//CString strRQName = _T("관심종목");
+		//long lRet = theApp.m_khOpenApi.CommKwRqData(strCodeList, 0, nCnt, 0, strRQName, m_strScrNo);
+		//if (!theApp.IsError(lRet))
+		//{
+		//	return;
+		//}
+		//CString strQueryCode =  m_ArrTopdata[0].strCode;
+		//theApp.m_khOpenApi.SetInputValue(L"종목코드",strQueryCode);
+		//theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,m_strScrNo);
 		//SetDataJongInfoGrid(arrData);
 	}
-	m_TopList.SetRedraw();
+
+	if (strRQName != _T("관심종목"))			// 관심종목정보 설정
+	{
+		CString strData;
+		CStringArray arrData;
+		int nFieldCnt = sizeof(lstOPTKWFID) / sizeof(*lstOPTKWFID);		// 전체크기 / 원소크기 = 원소개수
+		//m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 		CshootStockDlg *pMain=(CshootStockDlg *)AfxGetApp()->GetMainWnd();
+		// 		//pMain->m_buyList.m_ListBox.SetItem(0,0,1,L"asdfasdf",0,0,0,0);
+		// 
+		// 		CReportCtrl * pListCtrl = &pMain->m_buyList.m_ListBox;
+		strRQName = _T("관심종목정보");
+		int i, j, nCnt = theApp.m_khOpenApi.GetRepeatCnt(sTrcode, strRQName);
+		for (i = 0; i < nCnt; i++)
+		{
+			arrData.RemoveAll();
+			for (j = 0; j < nFieldCnt; j++)
+			{
+				strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, i, lstOPTKWFID[j].strKey);	strData.Trim();
+				// 				pListCtrl->SetItem(i,j,1,strData,0,0,0,0);
+				// 				if(j == 2){
+				// 					if(strData.GetAt(0) == '-')
+				// 						pListCtrl->SetItemTextColor(i,j,RGB(0,0,255));
+				// 					else
+				// 						pListCtrl->SetItemTextColor(i,j,RGB(255,0,0));
+				// 				}
+				//pListCtrl->SetItemBkColor(i,j,RGB(255,0,0)); red
+
+				//m_grdKwanSim.SetItemFormat(i + 1, lstOPTKWFID[j].nCol, lstOPTKWFID[j].nAlign);
+				//m_ListBox.SetItemText(0,j,strData);
+				//m_ListBox.SetItem(i,j,1,strData,0,0,0,0);
+				arrData.Add(strData);
+
+			}
+			//OnUpdateListData(arrData);
+			//SetDataKwanSimGrid(arrData);
+		}
+		// 		if (m_cellSelect.row > 0)
+		// 		{
+		// 			if (m_cellSelect.row >= m_grdKwanSim.GetRowCount())
+		// 			{
+		// 				m_cellSelect.row = m_grdKwanSim.GetRowCount() - 1;
+		// 			}
+		// 			m_grdKwanSim.SetFocusCell(m_cellSelect);
+		// 			m_grdKwanSim.SetSelectedRange(m_cellSelect.row, m_cellSelect.col, m_cellSelect.row, m_cellSelect.col);
+		// 		}
+	}
+	if (strRQName == _T("주식기본정보요청"))			// 계좌수익률//if (!lstrcmp(sRealType, L"주식체결"))	// 주식체결
+	{
+
+		//CString strData;
+		//CStringArray arrData;
+	
+		//strRQName = _T("주식기본정보");
+
+		//strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"종목코드");	strData.Trim();
+		//_Trace(L"strCode = %s",strData);
+
+		////m_normalQueryIndex++;
+
+		////theApp.m_khOpenApi.SetInputValue(L"종목코드",m_ArrTopdata[m_normalQueryIndex].strCode);
+		////theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,m_strScrNo);
+
+		//
+		//CString strIndex;
+		//if(m_mapJongCode.Lookup(strData,strIndex)){
+		//	int nIndex = _wtoi(strIndex);
+		//	strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"연중최고");	strData.Trim();
+		//	m_TopList.SetItem(nIndex,5,1,strData,0,0,0,0);
+		//	strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"연중최저");	strData.Trim();
+		//	m_TopList.SetItem(nIndex,6,1,strData,0,0,0,0);
+		//}
+
+				
+		
+		
+	}
+
+
+	
 }
 //*******************************************************************/
 //! Function Name	: OnReceiveRealDataKhopenapictrl
@@ -497,3 +598,18 @@ void CTopPrice::OnBnClickedButtonSave()
 
 
 
+
+
+void CTopPrice::OnBnClickedButtonInfo()
+{
+	// TODO: Add your control notification handler code here
+	int nIndex = m_TopList.GetItemCount();
+	for (int i = 0;i < nIndex;i++)
+	{
+		CString strCode =  m_TopList.GetItemText(i,0);
+		//_Trace(L"strcode = %s",strCode);
+		theApp.m_khOpenApi.SetInputValue(L"종목코드",strCode);
+		theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,m_strScrNo);
+		Sleep(200);
+	}
+}

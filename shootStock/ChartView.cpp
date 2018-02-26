@@ -11,47 +11,12 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include <strsafe.h>
+
 #include "shootStockDlg.h"
 // CChartView dialog
-#define OUTPUT_BUFF_LEN 51200 
+
 static int nrst = 0;
-void DbgStrOutW(const wchar_t *fmt, ...)
-{
-	wchar_t szOutStr[OUTPUT_BUFF_LEN];
 
-	va_list ap;
-	va_start(ap, fmt);
-	StringCbVPrintfW(szOutStr, OUTPUT_BUFF_LEN, fmt, ap);
-	va_end(ap);
-
-
-	OutputDebugString(szOutStr);
-}
-
-void DbgStrOutA(const char *fmt, ...)
-{
-	char szOutStr[OUTPUT_BUFF_LEN];
-	va_list ap;
-	va_start(ap, fmt);
-	StringCbVPrintfA(szOutStr, OUTPUT_BUFF_LEN, fmt, ap);
-	va_end(ap);
-
-
-	//g_logger.puts(JsCPPUtils::Logger::LOGTYPE_INFO, szOutStr);
-	//LOG(INFO) << szOutStr;
-	HWND hWnd = FindWindowA(NULL, "Trace");
-	if (hWnd)
-	{
-		COPYDATASTRUCT pCopy;
-		memset(&pCopy, 0, sizeof(COPYDATASTRUCT));
-		pCopy.cbData = strlen(szOutStr) + 1;
-		pCopy.lpData = szOutStr;
-		pCopy.dwData = 0;
-		SendMessage(hWnd, WM_COPYDATA, 0, (LPARAM)&pCopy);
-	}
-	//OutputDebugStringA(szOutStr);
-}
 
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
 const stGRID lstOPT10081[] = 
