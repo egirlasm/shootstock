@@ -326,8 +326,8 @@ BOOL CshootStockDlg::OnInitDialog()
 
 	::ZeroMemory(&lf, sizeof(lf));
 	lf.lfHeight = 15;
-	lf.lfWeight = FW_NORMAL;
-	::lstrcpy(lf.lfFaceName, (LPCWSTR)"讣篮绊雕");
+	lf.lfWeight = FW_BOLD;
+	::lstrcpy(lf.lfFaceName, (LPCWSTR)"Tahoma");
 	fnt.CreateFontIndirect(&lf);
 	GetDlgItem(IDC_STATIC_HIGH)->SetFont(&fnt);
 	GetDlgItem(IDC_STATIC_LOW)->SetFont(&fnt);
@@ -472,14 +472,14 @@ void CshootStockDlg::MainOnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sR
 					m_staticPrice = strData;
 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250弥绊");	strData.Trim();
 					m_staticHigh = strData;
-					m_staticHigh = L"50林弥绊:"+m_staticHigh.Mid(1,m_staticHigh.GetLength() -1);
+					m_staticHigh = L"50林弥绊: "+m_staticHigh.Mid(1,m_staticHigh.GetLength() -1);
 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250弥历");	strData.Trim();
 					m_staticLow = strData;
-					m_staticLow = L"50林弥历:"+m_staticLow.Mid(1,m_staticLow.GetLength() -1);
+					m_staticLow = L"50林弥历: "+m_staticLow.Mid(1,m_staticLow.GetLength() -1);
 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"概免咀");	strData.Trim();
-					m_staticSales = L"概免咀:"+strData;
+					m_staticSales = L"概免咀: "+strData;
 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"康诀捞劳");	strData.Trim();
-					m_staticProfit = L"康诀捞劳:"+strData;
+					m_staticProfit = L"康诀捞劳: "+strData;
 			
 					//TraceOutputW(strData);
 					UpdateData(FALSE);
@@ -1770,6 +1770,7 @@ void CshootStockDlg::InitTabControl(void)
 	pImageList.Add(AfxGetApp()->LoadIcon(IDI_ICON5));
 	pImageList.Add(AfxGetApp()->LoadIcon(IDI_ICON6));
 	pImageList.Add(AfxGetApp()->LoadIcon(IDI_ICON4));
+	pImageList.Add(AfxGetApp()->LoadIcon(IDI_ICON7));
 	//this->m_hWnd = 0;
 
 	m_TabControl.SetImageList(&pImageList);
@@ -1778,16 +1779,20 @@ void CshootStockDlg::InitTabControl(void)
 	m_TabControl.InsertItem(2, _T("傈老殿遏伏"));
 	m_TabControl.InsertItem(3, _T("老磊喊矫技"));
 	m_TabControl.InsertItem(4, _T("老磊喊荐劳泅炔"));
+	m_TabControl.InsertItem(5, _T("磊悼概概"));
 	pImageList.Detach();
 
 	tm.mask = TCIF_IMAGE;   //   加上这句就可以了   
-	for(int i=0; i<4; i++)   
+	for(int i=0; i<2; i++)   
 	{   
 		m_TabControl.GetItem(i,&tm);   
 		tm.iImage=i;   
 		m_TabControl.SetItem(i,&tm);   
 	}
 
+	m_TabControl.GetItem(5,&tm);   
+	tm.iImage=3;   
+	m_TabControl.SetItem(5,&tm);  
 
 	if (!GetNextScreenNum(1))
 	{
@@ -1846,6 +1851,19 @@ void CshootStockDlg::InitTabControl(void)
 
 	m_mapScreen.SetAt(m_incomeDlg.m_strScrNo, &m_incomeDlg);
 
+
+
+	if (!GetNextScreenNum(7))
+	{
+		return;
+	}
+
+
+	m_AutoSystem.m_strScrNo.Format(L"%04d", m_nScrN0);
+	m_AutoSystem.Create(IDD_AUTO_SYSTEM,&m_TabControl);
+
+	m_mapScreen.SetAt(m_AutoSystem.m_strScrNo, &m_AutoSystem);
+
 	CRect r;
 	m_TabControl.GetClientRect (&r);
 
@@ -1854,6 +1872,7 @@ void CshootStockDlg::InitTabControl(void)
 	m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW);
 	m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 	m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+	m_AutoSystem.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 }
 
 
@@ -1871,6 +1890,7 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_AutoSystem.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		break;
 	case 1:
 		m_buyList.SetWindowPos (NULL,3,22,r.right-8,r.bottom -28,SWP_HIDEWINDOW);
@@ -1878,6 +1898,7 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_AutoSystem.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		break;
 	case 2:
 		m_buyList.SetWindowPos (NULL,3,22,r.right-8,r.bottom -28,SWP_HIDEWINDOW);
@@ -1895,6 +1916,7 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
 		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_AutoSystem.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SendSearch();
 		//m_TabControl.SetCurSel(0);
 		break;
@@ -1904,8 +1926,19 @@ void CshootStockDlg::OnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
+		m_AutoSystem.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
 		//m_TabControl.SetCurSel(0);
 		m_incomeDlg.GetDailyIncome();
+		break;
+
+	case 5:
+		m_buyList.SetWindowPos (NULL,3,22,r.right-8,r.bottom -28,SWP_HIDEWINDOW);
+		m_curPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_topPrice.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_DailyReport.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		m_incomeDlg.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_HIDEWINDOW ); 
+		//m_TabControl.SetCurSel(0);
+		m_AutoSystem.SetWindowPos (NULL,3,22,r.right-8,r.bottom-28,SWP_SHOWWINDOW ); 
 		break;
 	}
 	*pResult = 0;

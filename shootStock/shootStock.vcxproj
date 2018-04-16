@@ -108,16 +108,20 @@
     <None Include="res\a.ICO" />
     <None Include="res\BenX.ico" />
     <None Include="res\dmp.ico" />
+    <None Include="res\icon7.ico" />
     <None Include="res\Icon_2.ico" />
     <None Include="res\Icon_7.ico" />
     <None Include="res\shootStock.ico" />
     <None Include="res\shootStock.rc2" />
+    <None Include="res\time.ico" />
+    <None Include="res\Windows.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CIni_Src\Ini.h" />
     <ClInclude Include="..\CLabel\Label.h" />
     <ClInclude Include="..\Registry\Registry.h" />
     <ClInclude Include="..\ReportCtrl\ReportCtrl.h" />
+    <ClInclude Include="AutoSystem.h" />
     <ClInclude Include="BuyList.h" />
     <ClInclude Include="ChartView.h" />
     <ClInclude Include="ChartViewer.h" />
@@ -140,6 +144,7 @@
     <ClCompile Include="..\CLabel\Label.cpp" />
     <ClCompile Include="..\Registry\Registry.cpp" />
     <ClCompile Include="..\ReportCtrl\ReportCtrl.cpp" />
+    <ClCompile Include="AutoSystem.cpp" />
     <ClCompile Include="BuyList.cpp" />
     <ClCompile Include="ChartView.cpp" />
     <ClCompile Include="ChartViewer.cpp" />

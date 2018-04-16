@@ -15,6 +15,7 @@
 #include "Income.h"
 #include "afxwin.h"
 #include "../CLabel/Label.h"
+#include "AutoSystem.h"
 #define WM_UPDATESTATUSBAR WM_USER + 255
 
 // Simple CObject-derived class for CObList and other examples
@@ -134,6 +135,8 @@ public:
 	CDailyReport m_DailyReport;
 	CIncome m_incomeDlg;
 	CChartView m_ChartView;
+	CAutoSystem m_AutoSystem;
+
 	CStatusBar m_StatusBar;
 	void InitStatusBar(void);
 	void OnBtnGetAccData(void);

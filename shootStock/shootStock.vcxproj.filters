@@ -55,6 +55,15 @@
     <None Include="res\Icon_7.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\Windows.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\icon7.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\time.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shootStock.h">
@@ -117,6 +126,9 @@
     <ClInclude Include="..\CLabel\Label.h">
       <Filter>CLabel</Filter>
     </ClInclude>
+    <ClInclude Include="AutoSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shootStock.cpp">
@@ -172,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="..\CLabel\Label.cpp">
       <Filter>CLabel</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoSystem.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
