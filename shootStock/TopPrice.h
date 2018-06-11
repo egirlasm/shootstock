@@ -58,4 +58,5 @@ public:
 	CString m_curDate;
 	afx_msg void OnBnClickedButtonInfo();
 	int m_normalQueryIndex;
+	afx_msg void OnBnClickedButtonChart();
 };

@@ -55,6 +55,7 @@ BEGIN_MESSAGE_MAP(CTopPrice, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_NEXT, &CTopPrice::OnBnClickedButtonNext)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CTopPrice::OnBnClickedButtonSave)
 	ON_BN_CLICKED(IDC_BUTTON_INFO, &CTopPrice::OnBnClickedButtonInfo)
+	ON_BN_CLICKED(IDC_BUTTON_CHART, &CTopPrice::OnBnClickedButtonChart)
 END_MESSAGE_MAP()
 
 
@@ -612,4 +613,34 @@ void CTopPrice::OnBnClickedButtonInfo()
 		theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,m_strScrNo);
 		Sleep(200);
 	}
+}
+
+
+void CTopPrice::OnBnClickedButtonChart()
+{
+	// TODO: Add your control notification handler code here
+
+	
+
+	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+	if (!pMain->GetNextScreenNum(5))
+	{
+		return;
+	}
+
+	for(int i=0; i<m_TopList.GetItemCount(); i++)
+	{
+		if( m_TopList.GetItemState(i, LVIS_SELECTED) == LVIS_SELECTED )
+		{
+
+		CString strJongCode=  m_TopList.GetItemText(i,0);
+		pMain->m_boardJongmokCode = strJongCode;
+		}
+	}
+	CChartView *pChartView = new CChartView(this);
+	pChartView->m_strScrNo.Format(_T("%04d"), pMain->m_nScrN0);
+	pChartView->Create(IDD_DIALOG_CHART);
+
+	pMain->m_mapScreen.SetAt(pChartView->m_strScrNo, pChartView);
+	pChartView->SendSearch();
 }

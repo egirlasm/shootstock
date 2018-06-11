@@ -67,4 +67,5 @@ public:
 	CViewPortControl m_ViewPortControl;
 	afx_msg void OnBnClickedButtonDaily();
 	afx_msg void OnBnClickedButtonMinute();
+	afx_msg void OnBnClickedButton1();
 };

@@ -85,6 +85,7 @@ BEGIN_MESSAGE_MAP(CChartView, CDialogEx)
 	  ON_CONTROL(CVN_ViewPortChanged, IDC_CHART_VIEWER, OnViewPortChanged)
 	  ON_BN_CLICKED(IDC_BUTTON_DAILY, &CChartView::OnBnClickedButtonDaily)
 	  ON_BN_CLICKED(IDC_BUTTON_MINUTE, &CChartView::OnBnClickedButtonMinute)
+	  ON_BN_CLICKED(IDC_BUTTON1, &CChartView::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -1211,4 +1212,10 @@ void CChartView::OnBnClickedButtonMinute()
 
 	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10080",0,m_strScrNo);
 	theApp.IsError(ret);
+}
+
+
+void CChartView::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
 }
