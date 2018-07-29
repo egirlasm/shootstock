@@ -11,7 +11,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-
+#include <winspool.h>
 #include "shootStockDlg.h"
 // CChartView dialog
 
@@ -75,6 +75,7 @@ void CChartView::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHART_VIEWER, m_ChartViewer);
 	DDX_Control(pDX, IDC_VIEW_PORT_CTRL, m_ViewPortControl);
+	DDX_Control(pDX, IDC_COMBO1, m_cboPrint);
 }
 
 
@@ -86,6 +87,7 @@ BEGIN_MESSAGE_MAP(CChartView, CDialogEx)
 	  ON_BN_CLICKED(IDC_BUTTON_DAILY, &CChartView::OnBnClickedButtonDaily)
 	  ON_BN_CLICKED(IDC_BUTTON_MINUTE, &CChartView::OnBnClickedButtonMinute)
 	  ON_BN_CLICKED(IDC_BUTTON1, &CChartView::OnBnClickedButton1)
+	  ON_BN_CLICKED(IDC_BUTTON_PRINT, &CChartView::OnBnClickedButtonPrint)
 END_MESSAGE_MAP()
 
 
@@ -347,6 +349,29 @@ BOOL CChartView::OnInitDialog()
 
 	// TODO:  Add extra initialization here
 	ShowWindow(SW_SHOW);
+
+
+	DWORD dwNeeded; 
+	DWORD dwReturn; 
+	DWORD dwFlag = PRINTER_ENUM_CONNECTIONS | PRINTER_ENUM_LOCAL; 
+
+	EnumPrinters(dwFlag, NULL, 4, NULL, 0, &dwNeeded, &dwReturn); 
+
+	PRINTER_INFO_4* p4; 
+	p4 = new PRINTER_INFO_4[dwNeeded]; 
+	EnumPrinters(dwFlag, NULL, 4, (PBYTE)p4, dwNeeded, &dwNeeded, &dwReturn); 
+
+	for (int i = 0; i<(int)dwReturn; i++) this->m_cboPrint.AddString(p4[i].pPrinterName); 
+
+	delete []p4; 
+
+	//下面是获取默认打印机
+	//构造打印设置对话框对象
+	CPrintDialog printDialog(FALSE);                     
+	//获取默认打印设备的设备环境
+	printDialog.GetDefaults();                             
+	//获取当前打印机的名称
+	m_DYJ = printDialog.GetDeviceName();   
 	// drawChart(&m_ChartViewer);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -1218,4 +1243,413 @@ void CChartView::OnBnClickedButtonMinute()
 void CChartView::OnBnClickedButton1()
 {
 	// TODO: Add your control notification handler code here
+}
+BOOL CChartView::GetPrinterDevice(LPTSTR pszPrinterName, HGLOBAL* phDevNames, HGLOBAL* phDevMode) 
+{ 
+	// if NULL is passed, then assume we are setting app object's 
+	// devmode and devnames 
+	if (phDevMode == NULL || phDevNames == NULL) 
+		return FALSE; 
+
+	// Open printer 
+	HANDLE hPrinter; 
+	if (OpenPrinter(pszPrinterName, &hPrinter, NULL) == FALSE) 
+		return FALSE; 
+
+	// obtain PRINTER_INFO_2 structure and close printer 
+	DWORD dwBytesReturned, dwBytesNeeded; 
+	GetPrinter(hPrinter, 2, NULL, 0, &dwBytesNeeded); 
+	PRINTER_INFO_2* p2 = (PRINTER_INFO_2*)GlobalAlloc(GPTR, 
+		dwBytesNeeded); 
+	if (GetPrinter(hPrinter, 2, (LPBYTE)p2, dwBytesNeeded, 
+		&dwBytesReturned) == 0) { 
+			GlobalFree(p2); 
+			ClosePrinter(hPrinter); 
+			return FALSE; 
+	} 
+	ClosePrinter(hPrinter); 
+
+	// Allocate a global handle for DEVMODE 
+	HGLOBAL  hDevMode = GlobalAlloc(GHND, sizeof(*p2->pDevMode) + 
+		p2->pDevMode->dmDriverExtra); 
+	ASSERT(hDevMode); 
+	DEVMODE* pDevMode = (DEVMODE*)GlobalLock(hDevMode); 
+	ASSERT(pDevMode); 
+
+	// copy DEVMODE data from PRINTER_INFO_2::pDevMode 
+	memcpy(pDevMode, p2->pDevMode, sizeof(*p2->pDevMode) + 
+		p2->pDevMode->dmDriverExtra); 
+	GlobalUnlock(hDevMode); 
+
+	// Compute size of DEVNAMES structure from PRINTER_INFO_2's data 
+	DWORD drvNameLen = lstrlen(p2->pDriverName)+1;  // driver name 
+	DWORD ptrNameLen = lstrlen(p2->pPrinterName)+1; // printer name 
+	DWORD porNameLen = lstrlen(p2->pPortName)+1;    // port name 
+
+	// Allocate a global handle big enough to hold DEVNAMES. 
+	HGLOBAL hDevNames = GlobalAlloc(GHND, 
+		sizeof(DEVNAMES) + 
+		(drvNameLen + ptrNameLen + porNameLen)*sizeof(TCHAR)); 
+	ASSERT(hDevNames); 
+	DEVNAMES* pDevNames = (DEVNAMES*)GlobalLock(hDevNames); 
+	ASSERT(pDevNames); 
+
+	// Copy the DEVNAMES information from PRINTER_INFO_2 
+	// tcOffset = TCHAR Offset into structure 
+	int tcOffset = sizeof(DEVNAMES)/sizeof(TCHAR); 
+	ASSERT(sizeof(DEVNAMES) == tcOffset*sizeof(TCHAR)); 
+
+	pDevNames->wDriverOffset = tcOffset; 
+	memcpy((LPTSTR)pDevNames + tcOffset, p2->pDriverName, 
+		drvNameLen*sizeof(TCHAR)); 
+	tcOffset += drvNameLen; 
+
+	pDevNames->wDeviceOffset = tcOffset; 
+	memcpy((LPTSTR)pDevNames + tcOffset, p2->pPrinterName, 
+		ptrNameLen*sizeof(TCHAR)); 
+	tcOffset += ptrNameLen; 
+
+	pDevNames->wOutputOffset = tcOffset; 
+	memcpy((LPTSTR)pDevNames + tcOffset, p2->pPortName, 
+		porNameLen*sizeof(TCHAR)); 
+	pDevNames->wDefault = 0; 
+
+	GlobalUnlock(hDevNames); 
+	GlobalFree(p2);   // free PRINTER_INFO_2 
+
+	// set the new hDevMode and hDevNames 
+	*phDevMode = hDevMode; 
+	*phDevNames = hDevNames; 
+	return TRUE; 
+} 
+
+void CChartView::OnBnClickedButtonPrint()
+{
+	// TODO: Add your control notification handler code here
+	int nWidth;
+	int nHeight;
+	CClientDC dc(this); //this->pImgWnd
+	CDC MemDC;
+	MemDC.CreateCompatibleDC(&dc);
+
+	CRect rect;
+	GetClientRect(rect);
+	nWidth = rect.Width();
+	nHeight = rect.Height();
+
+	CBitmap BMP;
+	BMP.CreateCompatibleBitmap(&dc, rect.Width(), rect.Height());
+	CBitmap* pOldBitmap = MemDC.SelectObject(&BMP);
+	MemDC.BitBlt(0, 0, nWidth, nHeight, &dc, 0, 0, SRCCOPY);
+
+	HANDLE hDib;
+	LPSTR pDib;
+	LPBITMAPINFO lpBitInfo;
+	HANDLE hlpBitInfo;
+	//CBitmap BMP;
+
+	//BMP.LoadBitmap(IDB_BITMAP1);
+
+	hDib=GlobalAlloc(GHND,nWidth*nHeight*3);
+	pDib=(LPSTR)GlobalLock(hDib);
+	hlpBitInfo=GlobalAlloc(GHND,sizeof(BITMAPINFOHEADER)+ sizeof(BITMAPINFO));
+	lpBitInfo=(LPBITMAPINFO)GlobalLock(hlpBitInfo);
+
+	//BITMAPINFO
+	lpBitInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	lpBitInfo->bmiHeader.biWidth = nWidth;
+	lpBitInfo->bmiHeader.biHeight = nHeight;
+	lpBitInfo->bmiHeader.biPlanes = 1;
+	lpBitInfo->bmiHeader.biBitCount = 24;
+	lpBitInfo->bmiHeader.biCompression = BI_RGB;
+	lpBitInfo->bmiHeader.biSizeImage = nWidth * nHeight * 3;
+	lpBitInfo->bmiHeader.biXPelsPerMeter = 0;
+	lpBitInfo->bmiHeader.biYPelsPerMeter = 0;
+	lpBitInfo->bmiHeader.biClrUsed = 0;
+	lpBitInfo->bmiHeader.biClrImportant = 0; 
+	////BITMAPINFO 
+
+	HDC hdc=::GetDC(this->m_hWnd);
+	GetDIBits(hdc, (HBITMAP)BMP, 0, nHeight, pDib, lpBitInfo, DIB_RGB_COLORS);
+	::ReleaseDC(this->m_hWnd, hdc);
+
+	static DOCINFO docinfo= {sizeof(DOCINFO), _T("IMAGE"), NULL};
+
+	CPrintDialog dlg(FALSE);
+	if(dlg.DoModal()== IDCANCEL)
+		return; 
+
+	HDC hpdc= dlg.GetPrinterDC();
+	int cx, cy ;
+
+	cy=GetDeviceCaps(hpdc,VERTRES);
+	cx=GetDeviceCaps(hpdc,HORZRES);
+
+	if(StartDoc(hpdc,&docinfo))
+	{
+		if(StartPage(hpdc))
+		{
+			StretchDIBits(hpdc,
+				0, 0, cx, cy, 0, 0, nWidth, nHeight, pDib, lpBitInfo, DIB_RGB_COLORS,SRCCOPY);
+			EndPage(hpdc);
+		}
+		EndDoc(hpdc);
+	}
+	::RestoreDC(hpdc, -1); 
+
+		//
+		//
+		// Design and implementation cinoban@yahoo.com
+		// 13 Jan 2000 15:14
+		//
+	//CString strMessage; 
+
+	////m_DYJStr  被打印的字符串
+	//strMessage = L"test爱神的箭夫卡就收到了开发阿喀琉斯的经历可是大家付款了房间阿拉丁健身房flak即使对方爱上了看见对方开了多少积分拉开圣诞节风口浪尖上的立刻解放立刻啊圣诞节分厘卡是";
+	//strMessage += "\r\n";       //添加结尾，方便后面循环读取打印数据 
+
+	////this->GetDlgItem(IDC_COMBO1)->GetWindowText(strPrintDevice); 
+
+	////打印配置界面的按钮可用性，因为后台打印，其实这个配置没什么意义 
+	//DWORD dwFlag = PD_ALLPAGES | PD_NOPAGENUMS | PD_USEDEVMODECOPIES | PD_HIDEPRINTTOFILE;     
+
+	////CPrintDialog实例化，因为MFC的打印设备无关性，可以理解为这就是一台打印机
+	//CPrintDialog pPrintdlg(FALSE, dwFlag, this);                                            
+
+	//HGLOBAL hDevMode = NULL; 
+	//HGLOBAL hDevNames = NULL; 
+
+	////获得指定打印机的配置、名字
+	//if (GetPrinterDevice(m_DYJ.GetBuffer(0), &hDevNames, &hDevMode))               
+	//	AfxGetApp()->SelectPrinter(hDevNames, hDevMode); 
+	//else 
+	//	AfxMessageBox(_T("Failed to select custom printer")); 
+
+	//m_DYJ.ReleaseBuffer(); 
+
+	////让pPrintdlg使用我们指定的打印机
+	//pPrintdlg.m_pd.hDevMode = hDevMode;                                                      
+	//pPrintdlg.m_pd.hDevNames = hDevNames; 
+
+	//CDC dc; 
+	////后台打印创建法，如果需要弹出打印对话框，请用DoModal
+	//dc.Attach(pPrintdlg.CreatePrinterDC());                                                  
+
+	////下面的内容网上很多，就不解释了
+	//DOCINFO di;                                                                              
+	//di.cbSize = sizeof(DOCINFO); 
+	//di.lpszDocName = _T("有驱打印测试"); 
+	//di.lpszDatatype = NULL; 
+	//di.lpszOutput = NULL; 
+	//di.fwType = 0; 
+
+	//dc.StartDoc(&docinfo); 
+	//dc.StartPage(); 
+	//dc.SetMapMode(MM_TEXT); 
+
+	//CRect recPrint(0, 0, dc.GetDeviceCaps(LOGPIXELSX), dc.GetDeviceCaps(LOGPIXELSY)); 
+	//dc.DPtoLP(&recPrint); 
+	//dc.SetWindowOrg(0, 0); 
+
+	//CDC * chart =m_ChartViewer.GetDC();
+
+	//CFont newFont; 
+	////设置字体和字体大小
+	//VERIFY(newFont.CreatePointFont(50, _T("宋体"), &dc)); 
+	//CFont* oldFont = dc.SelectObject(&newFont); 
+
+	//dc.SetTextAlign(TA_TOP | TA_LEFT); 
+
+	//CString strPrint; 
+	//int nIndex = 0; 
+	//int x = 20;  //设置侧边间距
+	//int y = 50; 
+	//CSize textSize; 
+	////根据当前字体的宽、高，后面以此高度为行高
+	//textSize = dc.GetTextExtent(_T("00"), 2);                            
+
+	////将IDC_EDIT1编辑框中内容打印，支持换行，一次换行等于'\r\n'，所以在开头strMessage += _T("\r\n")
+	//while ((nIndex = strMessage.Find(_T("\r\n"))) > -1)                   
+	//{ 
+	//	strPrint = strMessage.Left(nIndex); 
+	//	strMessage = strMessage.Mid(nIndex+2); 
+
+	//	dc.TextOut(x, y, strPrint); 
+
+	//	//下移一行，行高为字体高度
+	//	y += textSize.cy;                                                
+	//} 
+
+	//dc.SelectObject(oldFont); 
+	//newFont.DeleteObject(); 
+	//dc.SelectObject();
+	//dc.EndPage(); 
+	//dc.EndDoc(); 
+	//DeleteDC(dc.Detach()); 
+	return;
+//		CString strWords;
+//
+//	// This is a rectangle control
+//	CWnd* pWnd = GetDlgItem(IDC_CHART_VIEWER);
+//
+//	CDC* dc;
+//	CDC memoriDC;
+//	CBitmap memBMP;
+//	CBitmap* pOldBMP;
+//	CFont fnt;
+//	CFont* pOldFnt;
+//	CRect rect;
+//	CRect rectMemory;
+//	CSize zMetrix;
+//
+//	//
+//	//
+//	//
+//	CPrintDialog pdlg(FALSE);
+//	DOCINFO di;
+//	CDC prnDC;
+//
+//	di.cbSize = sizeof(DOCINFO);
+//	di.lpszDocName = L"This string will appear in Printer Queue";
+//		di.lpszOutput = NULL;
+//	di.lpszDatatype = NULL;
+//	di.fwType = 0;
+//
+//	//
+//	// Get current printer setting
+//	//
+//	pdlg.GetDefaults();
+//
+//
+//	//
+//	dc = pWnd->GetDC();
+//	pWnd->GetClientRect(&rect);
+//
+//	// DC printer???
+//	if( !prnDC.Attach(pdlg.GetPrinterDC()) )
+//		AfxMessageBox(L"Invalid Printer DC");
+//	memoriDC.CreateCompatibleDC(&prnDC); // Create DC for Preview
+//
+//		//
+//		// Get the resolution of Screen and Current DefaultPrinter
+//		//
+//		int iPrnX = prnDC.GetDeviceCaps(HORZRES);
+//	int iPrnY = prnDC.GetDeviceCaps(VERTRES);
+//	int iMonX = dc->GetDeviceCaps(HORZRES); // Device Target is Monitor
+//		int iMonY = dc->GetDeviceCaps(VERTRES);
+//
+//
+//	rectMemory.top = 0;
+//	rectMemory.left = 0;
+//	rectMemory.bottom = iPrnY;
+//	rectMemory.right = iPrnX;
+//
+//	//
+//	// Create a Memory Bitmap that is compatible with the Printer DC
+//		// then select or make the bitmap as current GDI active object
+//		//
+//		memBMP.CreateCompatibleBitmap(&prnDC,
+//		rectMemory.Width(), rectMemory.Height());
+//	pOldBMP = memoriDC.SelectObject(&memBMP);
+//
+//	//
+//	// Clear memory DC or in other words
+//	// paint the bitmap with white colour and transparent text
+//		//
+//		memoriDC.SetBkMode(TRANSPARENT);
+//	memoriDC.SetTextColor(RGB(0, 0, 0));
+//	memoriDC.PatBlt(0, 0, rectMemory.Width(),
+//		rectMemory.Height(), WHITENESS);
+//
+//	//
+//	// Prepare the font
+//	//
+//	int iPointz = 100;
+//	fnt.CreatePointFont(iPointz, L"OCR A", &memoriDC);
+//	strWords.Format(L"This is line number    ");        //Test string
+//		pOldFnt = memoriDC.SelectObject(&fnt);
+//	zMetrix = memoriDC.GetTextExtent(strWords);
+//	int iPos = 0;
+//
+//	//
+//	// Write string or Paint something
+//	//
+//	int iMaksimal = 0;
+//	int iLineHeight = 1;
+//	int iLoop;
+//	CString strPuncak;
+//
+//	//
+//	// Calculate how many lines we could fit
+//	//
+//	for(iLoop = 1; iLoop < 100; iLoop++)
+//	{
+//		if( ((zMetrix.cy+iLineHeight)*iLoop) < iPrnY )
+//			iMaksimal++;
+//	}
+//
+//	strPuncak.Format(L"Maximum Amount of line(s) for %d points are %d lines", iPointz, iMaksimal);
+//
+//		//
+//		//
+//		//
+//		for(iLoop = 0; iLoop < iMaksimal; iLoop++)
+//		{
+//			strWords.Format(L"This is line %d", iLoop);
+//			memoriDC.TextOut(0, iLoop*(zMetrix.cy+iLineHeight),
+//				strWords);
+//		}
+//
+//		//
+//		// Reseting font
+//		//
+//		memoriDC.SelectObject(pOldFnt);
+//
+//		//
+//		// Calculate ratio
+//		//
+//		float fXRatio = (float) iMonX/iPrnX;
+//		float fYRatio = (float) iMonY/iPrnY;
+//
+//
+//		//  iLebar = Width
+//		//  iTinggi = Height
+//		//  iXPosisiPreview = horisontal location of preview
+//		//  iYPosisiPreview = vertical location of preview
+//		//
+//		int iLebar = rect.Width()*fXRatio;
+//		int iTinggi = rect.Height()*fYRatio;
+//		int iXPosisiPreview = (rect.Width() - iLebar)/2;
+//		int iYPosisiPreview = (rect.Height() - iTinggi)/2;
+//		CPen pen(PS_SOLID, 2, RGB(255, 0, 0));
+//		CPen* pOldPen;
+//
+//		//
+//		// Create an outline
+//		//
+//		pOldPen = dc->SelectObject(&pen);
+//		dc->Rectangle(iXPosisiPreview, iYPosisiPreview ,
+//			iXPosisiPreview + iLebar + 2 , iYPosisiPreview +
+//			iTinggi + 2);
+//		dc->SelectObject(pOldPen);
+//
+//		//
+//		// Put in the box
+//		//
+//		dc->StretchBlt(iXPosisiPreview , iYPosisiPreview ,
+//			iLebar, iTinggi,
+//			&memoriDC, 0, 0, rectMemory.Width(),
+//			rectMemory.Height(), SRCCOPY);
+//
+//		//
+//		// Cleaning Up
+//		//
+//		fnt.DeleteObject();
+//		memoriDC.SelectObject(pOldBMP);
+//		memoriDC.DeleteDC();
+//		memBMP.DeleteObject();
+//		prnDC.Detach();
+//
+//		//
+//		pWnd->ReleaseDC(dc);
 }

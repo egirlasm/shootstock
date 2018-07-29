@@ -2,6 +2,7 @@
 
 #include "chartdir.h"
 #include "ChartViewer.h"
+#include "afxwin.h"
 // CChartView dialog
 
 class CChartView : public CDialogEx
@@ -31,13 +32,15 @@ public:
 	double *m_compareData;
 	int m_compareDataLen;
 
-
+	CString m_DYJ;
 	// The resolution of the data in seconds. 1 day = 86400 seconds.
 	int m_resolution;
 
 	// The moving average periods
 	int m_avgPeriod1;
 	int m_avgPeriod2;
+
+	BOOL GetPrinterDevice(LPTSTR pszPrinterName, HGLOBAL* phDevNames, HGLOBAL* phDevMode) ;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
@@ -68,4 +71,6 @@ public:
 	afx_msg void OnBnClickedButtonDaily();
 	afx_msg void OnBnClickedButtonMinute();
 	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButtonPrint();
+	CComboBox m_cboPrint;
 };
