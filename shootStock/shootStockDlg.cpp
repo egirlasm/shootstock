@@ -1602,17 +1602,23 @@ void CshootStockDlg::OnBtnGetAccData(void)
 	m_AccNo.Replace(L";",L"");
 	CString   strSafeKeyStatus = theApp.m_khOpenApi.GetLoginInfo(L"KEY_BSECGB" );
 
-	//HWND pWnd = ::FindWindow(NULL,L"계좌비밀번호 입력 (버전: 3.72)");
-	//CWnd *pWnd = FindWindowEx(this->m_hWnd,NULL,NULL,L"계좌비밀번호 입력 (버전: 3.72)");
-	//FindWindowEx(this)	::SetWindowPos (pWnd,NULL,0,0,0,0,SWP_SHOWWINDOW);
-	CString strServerType =  theApp.m_khOpenApi.KOA_Functions(_T("GetServerGubun"), _T(""));
-	if(strServerType == L"1"){//모의투자
-		AfxMessageBox(L"현재 접속한 서버는 모의투자서버입니다,비밀번호 아무거나 입력하셔도 됩니다 !",MB_ICONINFORMATION);
-		theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
-	}else{
-		MessageBox(L"경고!주의!위험!",L"현재 접속한 서버는 리얼서버입니다,\n비밀번호 오류시 계좌가 정지 됩니다\n유의해주시길바랍니다 !",MB_ICONWARNING);
-		theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
+
+	LONG nLoginState = theApp.m_khOpenApi.GetConnectState();
+	if(nLoginState){
+		//HWND pWnd = ::FindWindow(NULL,L"계좌비밀번호 입력 (버전: 3.72)");
+		//CWnd *pWnd = FindWindowEx(this->m_hWnd,NULL,NULL,L"계좌비밀번호 입력 (버전: 3.72)");
+		//FindWindowEx(this)	::SetWindowPos (pWnd,NULL,0,0,0,0,SWP_SHOWWINDOW);
+		CString strServerType =  theApp.m_khOpenApi.KOA_Functions(_T("GetServerGubun"), _T(""));
+		if(strServerType == L"1"){//모의투자
+			AfxMessageBox(L"현재 접속한 서버는 모의투자서버입니다,비밀번호 아무거나 입력하셔도 됩니다 !",MB_ICONINFORMATION);
+			theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
+		}else{
+			MessageBox(L"경고!주의!위험!",L"현재 접속한 서버는 리얼서버입니다,\n비밀번호 오류시 계좌가 정지 됩니다\n유의해주시길바랍니다 !",MB_ICONWARNING);
+			theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
+		}
 	}
+
+
 	
 	CString t = COleDateTime::GetCurrentTime().Format(_T("%H"));
 	if(_wtoi(t) >= 9){
