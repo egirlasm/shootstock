@@ -1470,18 +1470,75 @@ void CshootStockDlg::OnEventConnect(LONG nItemCnt)
 		
 		SendMessage(WM_UPDATESTATUSBAR,0,(LPARAM)L"연결성공.");
 
+		m_AccNo = theApp.m_khOpenApi.GetLoginInfo(L"ACCLIST");
+		m_AccNo.Replace(L";",L"");
+
+		m_AccNo = theApp.m_khOpenApi.GetLoginInfo(L"ACCLIST");
+		m_AccNo.Replace(L";",L"");
+		//CString   strSafeKeyStatus = theApp.m_khOpenApi.GetLoginInfo(L"KEY_BSECGB" );
+
+
+		//LONG nLoginState = theApp.m_khOpenApi.GetConnectState();
+		//if(nLoginState){
+		//HWND pWnd = ::FindWindow(NULL,L"계좌비밀번호 입력 (버전: 3.72)");
+		//CWnd *pWnd = FindWindowEx(this->m_hWnd,NULL,NULL,L"계좌비밀번호 입력 (버전: 3.72)");
+		//FindWindowEx(this)	::SetWindowPos (pWnd,NULL,0,0,0,0,SWP_SHOWWINDOW);
+		CString strServerType =  theApp.m_khOpenApi.KOA_Functions(_T("GetServerGubun"), _T(""));
+		if(strServerType == L"1"){//모의투자
+			AfxMessageBox(L"현재 접속한 서버는 모의투자서버입니다,비밀번호 아무거나 입력하셔도 됩니다 !",MB_ICONINFORMATION);
+			theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
+		}else{
+			MessageBox(L"경고!주의!위험!",L"현재 접속한 서버는 리얼서버입니다,\n비밀번호 오류시 계좌가 정지 됩니다\n유의해주시길바랍니다 !",MB_ICONWARNING);
+			theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
+		}
+		
 
 
 
-		this->OnBtnGetAccData();
-		//m_buyList.GetDataSearch();
-		//수익률계산 조회 //8100875411
+		CString t = COleDateTime::GetCurrentTime().Format(_T("%H"));
+		if(_wtoi(t) >= 9){
+			isStockMarketOpen = true;
+		}
 
-		theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
+		// 	여기서 strAcctList는 ';'로 분리한 보유계좌 목록임
+		// 		예) "3040525910;567890;3040526010"
+
+		if (!GetNextScreenNum(0))
+		{
+			return;
+		}
+
+
+		this->m_strScrNo.Format(_T("%04d"), m_nScrN0);
+
+
+		m_mapScreen.SetAt(m_strScrNo, this);
+
+	
+
+
+		theApp.m_khOpenApi.SetInputValue(L"계좌번호"	, m_AccNo);
+
+		//비밀번호 = 사용안함(공백)
+			theApp.m_khOpenApi.SetInputValue(L"비밀번호"	, L"2419");
+
+		//비밀번호입력매체구분 = 00
+			theApp.m_khOpenApi.SetInputValue(L"비밀번호입력매체구분"	,  L"00");
+
+		/*조회구분 = 1:합산, 2:개별*/
+			theApp.m_khOpenApi.SetInputValue(L"조회구분"	,  L"1");
+
 		long lRet = theApp.m_khOpenApi.CommRqData(L"계좌평가잔고내역요청", L"OPW00018", 0, m_strScrNo);
 		if (!theApp.IsError(lRet))
 		{
+			
 		}
+
+		
+		//m_buyList.GetDataSearch();
+		//수익률계산 조회 //8100875411
+
+
 		//계좌번호 = 전문 조회할 보유계좌번호
 		//theApp.m_khOpenApi.SetInputValue(L"계좌번호", m_AccNo);
 
@@ -1600,11 +1657,11 @@ void CshootStockDlg::OnBtnGetAccData(void)
 
 	m_AccNo = theApp.m_khOpenApi.GetLoginInfo(L"ACCLIST");
 	m_AccNo.Replace(L";",L"");
-	CString   strSafeKeyStatus = theApp.m_khOpenApi.GetLoginInfo(L"KEY_BSECGB" );
+	//CString   strSafeKeyStatus = theApp.m_khOpenApi.GetLoginInfo(L"KEY_BSECGB" );
 
 
-	LONG nLoginState = theApp.m_khOpenApi.GetConnectState();
-	if(nLoginState){
+	//LONG nLoginState = theApp.m_khOpenApi.GetConnectState();
+	//if(nLoginState){
 		//HWND pWnd = ::FindWindow(NULL,L"계좌비밀번호 입력 (버전: 3.72)");
 		//CWnd *pWnd = FindWindowEx(this->m_hWnd,NULL,NULL,L"계좌비밀번호 입력 (버전: 3.72)");
 		//FindWindowEx(this)	::SetWindowPos (pWnd,NULL,0,0,0,0,SWP_SHOWWINDOW);
@@ -1616,7 +1673,7 @@ void CshootStockDlg::OnBtnGetAccData(void)
 			MessageBox(L"경고!주의!위험!",L"현재 접속한 서버는 리얼서버입니다,\n비밀번호 오류시 계좌가 정지 됩니다\n유의해주시길바랍니다 !",MB_ICONWARNING);
 			theApp.m_khOpenApi.KOA_Functions(_T("ShowAccountWindow"), _T(""));
 		}
-	}
+	//}
 
 
 	

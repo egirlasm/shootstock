@@ -249,6 +249,7 @@ void CTopPrice::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, LP
 		//	int nIndex = _wtoi(strIndex);
 		//	strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"연중최고");	strData.Trim();
 		//	m_TopList.SetItem(nIndex,5,1,strData,0,0,0,0);
+
 		//	strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"연중최저");	strData.Trim();
 		//	m_TopList.SetItem(nIndex,6,1,strData,0,0,0,0);
 		//}

@@ -17,6 +17,50 @@
 
 static int nrst = 0;
 
+// {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
+const stGRID copylstOPT10001[] = 
+{
+	{L"종목코드",			L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	{L"종목명",			L"-1",	-1,	-1,	DT_NONE,		FALSE,	DT_LEFT,	L"",	L""}, 
+	/////////////////////////////////////
+	// 현재가 그리드
+	{L"현재가",			L"10",	0,	0,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	L"",	L""}, 
+	{L"대비기호",	L"25",	0,	1,	DT_SIGN,		TRUE,	DT_CENTER,L"",L""}, 
+	{L"전일대비",	L"11",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"등락율",		L"12",	0,	3,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"거래량",		L"13",	0,	4,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	{L"거래대비",	L"30",	0,	5,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	/////////////////////////////////////
+	// 주식기본정보 그리드 1행
+	{L"250최고",		L"-1",	0,	1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"250최고가대비율",L"-1",	0,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"250최고가일",	L"-1",	0,	3,	DT_DATE,		FALSE,	DT_CENTER,L"",L""}, 
+	{L"액면가",		L"-1",	0,	5,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,L"",L" 원"}, 
+	{L"시가총액",	L"-1",	0,	7,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L" 억"}, 
+	{L"EPS",			L"-1",	0,	9,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	/////////////////////////////////////
+	// 주식기본정보 그리드 2행
+	{L"250최저",		L"-1",	1,	1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"250최저가대비율",L"-1",	1,	2,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L"%"}, 
+	{L"250최저가일",	L"-1",	1,	3,	DT_DATE,		FALSE,	DT_CENTER,L"",L""}, 
+	{L"자본금",		L"-1",	1,	5,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,L"",L" 억"}, 
+	{L"대용가",		L"-1",	1,	7,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	{L"PER",			L"-1",	1,	9,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L""}, 
+	/////////////////////////////////////
+	// 주식기본정보 그리드 3행
+	{L"외인소진률",	L"-1",	2,	1,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L"%"}, 
+	{L"상장주식",	L"-1",	2,	5,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L" 천"}, 
+	{L"신용비율",	L"-1",	2,	7,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L"%"}, 
+	{L"결산월",		L"-1",	2,	9,	DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,L"",L"월"}, 
+	/////////////////////////////////////
+	// 주식기본정보 그리드 4행
+	{L"연중최고",	L"-1",	3,	1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"BPS",			L"-1",	3,	9,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,L"",L""}, 
+	/////////////////////////////////////
+	// 주식기본정보 그리드 5행
+	{L"연중최저",	L"-1",	4,	1,	DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,L"",L""}, 
+	{L"PBR",			L"-1",	4,	9,	DT_ZERO_NUMBER,	FALSE,	DT_CENTER,L"",L""}, 
+};
 
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬, 앞 문자, 뒷 문자}
 const stGRID lstOPT10081[] = 
@@ -329,7 +373,49 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 
 		m_ViewPortControl.setViewer(&m_ChartViewer);
 	}
+	if (strRQName == _T("주식기본정보요청"))			// 계좌수익률//if (!lstrcmp(sRealType, L"주식체결"))	// 주식체결
+	{
 
+		CString strData;
+		CStringArray arrData;
+		int nFieldCnt = sizeof(copylstOPT10001) / sizeof(*copylstOPT10001);		// 전체크기 / 원소크기 = 원소개수
+
+		strRQName = _T("주식기본정보");
+
+
+
+
+		arrData.RemoveAll();
+		for (int nIdx = 0; nIdx < nFieldCnt; nIdx++)
+		{
+			strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, copylstOPT10001[nIdx].strKey);	strData.Trim();
+			if(nIdx== 0){
+// 				if(strData == m_boardJongmokCode){
+// 					//strData = theApp.m_khOpenApi.GetCommRealData(strData, 10);	strData.Trim(); //현재가
+// 
+// 					m_staticCode = strData;
+// 
+// 					m_staticName =   theApp.m_khOpenApi.GetMasterCodeName(strData);
+// 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"현재가");	strData.Trim();
+// 					m_staticPrice = strData;
+// 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250최고");	strData.Trim();
+// 					m_staticHigh = strData;
+// 					m_staticHigh = L"50주최고: "+m_staticHigh.Mid(1,m_staticHigh.GetLength() -1);
+// 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250최저");	strData.Trim();
+// 					m_staticLow = strData;
+// 					m_staticLow = L"50주최저: "+m_staticLow.Mid(1,m_staticLow.GetLength() -1);
+// 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"매출액");	strData.Trim();
+// 					m_staticSales = L"매출액: "+strData;
+// 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"영업이익");	strData.Trim();
+// 					m_staticProfit = L"영업이익: "+strData;
+// 
+// 					//TraceOutputW(strData);
+// 					UpdateData(FALSE);
+// 				}
+			}
+			arrData.Add(strData);
+		}
+	}
 }
 //*******************************************************************/
 //! Function Name	: OnReceiveRealDataKhopenapictrl
