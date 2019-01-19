@@ -395,7 +395,8 @@ void CChartView::OnReceiveTrDataKhopenapictrl(LPCTSTR sScrNo, LPCTSTR sRQName, L
 // 
 // 					m_staticCode = strData;
 // 
-// 					m_staticName =   theApp.m_khOpenApi.GetMasterCodeName(strData);
+ 					CString m_staticName =   theApp.m_khOpenApi.GetMasterCodeName(strData);
+					m_strChartTitle = m_staticName;
 // 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"현재가");	strData.Trim();
 // 					m_staticPrice = strData;
 // 					strData = theApp.m_khOpenApi.GetCommData(sTrcode, strRQName, 0, L"250최고");	strData.Trim();
@@ -768,6 +769,34 @@ static void CvtToKorean(char ch[256], string str)
 }
 /*[출처] [ChartDir] 차트디렉터 한글 사용 (변수를 이용한)|작성자 Many Photos*/
 
+string UnicodeToUTF8(const wstring& str)
+{
+	char*     pElementText;
+	int    iTextLen;
+	// wide char to multi char
+	iTextLen = WideCharToMultiByte(CP_UTF8,
+		0,
+		str.c_str(),
+		-1,
+		NULL,
+		0,
+		NULL,
+		NULL);
+	pElementText = new char[iTextLen * 2 + 1];
+	memset((void*)pElementText, 0, sizeof(char) * (iTextLen * 2 + 1));
+	::WideCharToMultiByte(CP_UTF8,
+		0,
+		str.c_str(),
+		-1,
+		pElementText,
+		iTextLen * 2,
+		NULL,
+		NULL);
+	string strText;
+	strText = pElementText;
+	delete[] pElementText;
+	return strText;
+}
 
 /// <summary>
 /// Draw the chart according to user selection and display it in the ChartViewer.
@@ -889,8 +918,9 @@ void CChartView::drawChart(CChartViewer *viewer)
 	FinanceChart *c = new FinanceChart(r.Width()-50);
 
 	// Add a title to the chart
-	c->addTitle("Finance Chart Demonstration");
-
+	//c->addTitle("Finance Chart Demonstration");
+	string strChartTitle = UnicodeToUTF8(m_strChartTitle.GetBuffer());
+	c->addTitle(strChartTitle.c_str());
 	// Disable default legend box, as we are using dynamic legend
 	//c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
 
@@ -1274,6 +1304,11 @@ void CChartView::OnMouseMovePlotArea()
 void CChartView::SendSearch(void)
 {
 	CshootStockDlg * pMain = (CshootStockDlg *)AfxGetApp()->GetMainWnd();
+
+
+	theApp.m_khOpenApi.SetInputValue(L"종목코드",pMain->m_boardJongmokCode);
+	theApp.m_khOpenApi.CommRqData(L"주식기본정보요청",L"OPT10001",0,m_strScrNo);
+
 	CString strRQName = _T("주식일봉차트조회요청");
 	theApp.m_khOpenApi.SetInputValue(L"종목코드"	, pMain->m_boardJongmokCode);
 	CString t = COleDateTime::GetCurrentTime().Format(L"%Y%m%d");
@@ -1284,6 +1319,9 @@ void CChartView::SendSearch(void)
 	theApp.m_khOpenApi.SetInputValue(L"수정주가구분"	,  L"1");
 
 	long ret =  theApp.m_khOpenApi.CommRqData(strRQName,L"OPT10081",0,m_strScrNo);
+
+
+
 	theApp.IsError(ret);
 }
 

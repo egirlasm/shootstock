@@ -16,6 +16,7 @@ public:
 // Dialog Data
 	enum { IDD = IDD_DIALOG_CHART };
 	CString							m_strScrNo;
+	CString							m_strChartTitle;
 	// The ticker symbol, timeStamps, volume, high, low, open and close data    
 	CString m_tickerKey;
 	DoubleArray m_timeStamps;	
