@@ -769,34 +769,6 @@ static void CvtToKorean(char ch[256], string str)
 }
 /*[출처] [ChartDir] 차트디렉터 한글 사용 (변수를 이용한)|작성자 Many Photos*/
 
-string UnicodeToUTF8(const wstring& str)
-{
-	char*     pElementText;
-	int    iTextLen;
-	// wide char to multi char
-	iTextLen = WideCharToMultiByte(CP_UTF8,
-		0,
-		str.c_str(),
-		-1,
-		NULL,
-		0,
-		NULL,
-		NULL);
-	pElementText = new char[iTextLen * 2 + 1];
-	memset((void*)pElementText, 0, sizeof(char) * (iTextLen * 2 + 1));
-	::WideCharToMultiByte(CP_UTF8,
-		0,
-		str.c_str(),
-		-1,
-		pElementText,
-		iTextLen * 2,
-		NULL,
-		NULL);
-	string strText;
-	strText = pElementText;
-	delete[] pElementText;
-	return strText;
-}
 
 /// <summary>
 /// Draw the chart according to user selection and display it in the ChartViewer.
@@ -919,8 +891,25 @@ void CChartView::drawChart(CChartViewer *viewer)
 
 	// Add a title to the chart
 	//c->addTitle("Finance Chart Demonstration");
-	string strChartTitle = UnicodeToUTF8(m_strChartTitle.GetBuffer());
-	c->addTitle(strChartTitle.c_str());
+
+
+	wchar_t strUni[256] =L"유니코드";
+	char title[256] = {0x00,};
+	WideCharToMultiByte(CP_UTF8, 0,m_strChartTitle, -1, title, sizeof(char)*255, 0, 0);
+// 
+// 	double x[] = { 0, 1, 2 };
+// 	double y[] = { 50, 100, 150 };
+// 
+// 	// Create a XYChart object of size 250 x 250 pixels
+// 	XYChart *c = new XYChart(250, 250);
+	c->setDefaultFonts("gulim.ttc", "gulim.ttc");
+
+// 	string str = "한글";
+// 	char ch[256];
+// 	CvtToKorean(ch, str);
+	c->addTitle(title,0, 11, 0x333333);
+
+
 	// Disable default legend box, as we are using dynamic legend
 	//c->setLegendStyle("normal", 8, Chart::Transparent, Chart::Transparent);
 
