@@ -7,6 +7,18 @@ build with visual studio 2010
 
 
 
-# kiwoom auto login 
+## for visual studio 2019
 
-https://pigstoe83.tistory.com/51
+add below line to stdfx.h
+
+`_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS`
+
+## for error chardir60.dll 
+
+copy lib32/chartdir60.dll to bin/
+
+
+
+## kiwoom module installation guide book
+
+[kiwoom module installation guid](https://gitbook.egirlasm.me/kiwoom-document/_book/)
