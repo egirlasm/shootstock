@@ -7,7 +7,7 @@
 #include "afxdialogex.h"
 #include "shootStockDlg.h"
 #include "sqlite3/sqlite3.h"
-#include <hash_set>
+#include <unordered_set>
 #include "sha1.h"
 const stGRID lstOPT10027[] = 
 {
